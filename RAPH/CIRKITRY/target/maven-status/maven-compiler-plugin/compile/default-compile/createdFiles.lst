@@ -1,5 +1,7 @@
 com\example\gridy\Main.class
 com\example\gridy\Vector3f.class
+com\example\cirkitry\Motion.class
+com\example\cirkitry\WObj.class
 com\example\cirkitry\CameraController.class
 com\example\freefly\Main.class
 com\example\rotatingcuboid\Main.class
