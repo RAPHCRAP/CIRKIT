@@ -31,10 +31,14 @@ public class Main extends Application {
     public HashSet<KeyCode> keysPressed = new HashSet<>();
     private  Group camGroup;
     private Group sys;
+    private Group movRoot = new Group();
+    private Group yawNode = new Group();
+    private Group pitchNode = new Group();
+    private Group rollNode = new Group();
 
-    private Rotate pitch = new Rotate(0, Rotate.X_AXIS);  // look up/down
-    private Rotate yaw   = new Rotate(0, Rotate.Y_AXIS);  // look left/right
-    private Rotate roll  = new Rotate(0, Rotate.Z_AXIS);  // tilt (fan flip)
+//     private Rotate pitch = new Rotate(0, Rotate.X_AXIS);  // look up/down
+//     private Rotate yaw   = new Rotate(0, Rotate.Y_AXIS);  // look left/right
+//     private Rotate roll  = new Rotate(0, Rotate.Z_AXIS);  // tilt (fan flip)
 
 
     private double lastMouseX;
@@ -74,6 +78,17 @@ private double mouseSensitivity = 0.2; // you can adjust this
         
 camGroup = new Group(camera);
 
+         movRoot.getChildren().add(pitchNode);
+         pitchNode.getChildren().add(yawNode);
+         yawNode.getChildren().add(rollNode);
+         rollNode.getChildren().add(camGroup);
+
+
+         pitchNode.setRotationAxis(Rotate.Y_AXIS);
+yawNode.setRotationAxis(Rotate.X_AXIS);
+rollNode.setRotationAxis(Rotate.Z_AXIS);
+
+
         //  CamGroup.setTranslateX(0);
         // CamGroup.setTranslateY(0);
         // CamGroup.setTranslateZ(0);
@@ -82,15 +97,15 @@ camGroup = new Group(camera);
         // camera.translateYProperty().set(0);
         // camera.translateZProperty().set(0);
 
-        camGroup.translateXProperty().set(0);
-        camGroup.translateYProperty().set(0);
-        camGroup.translateZProperty().set(0);
+        movRoot.translateXProperty().set(0);
+        movRoot.translateYProperty().set(0);
+        movRoot.translateZProperty().set(0);
 
-        camGroup.getTransforms().addAll(pitch,yaw,roll);
+        // camGroup.getTransforms().addAll(pitch,yaw,roll);
         
 
         
-        root3D.getChildren().addAll(camGroup,b1);
+        root3D.getChildren().addAll(movRoot,b1);
 
        
 
@@ -106,8 +121,8 @@ camGroup = new Group(camera);
         mouseDragging = true;
         lastMouseX = e.getSceneX();
         lastMouseY = e.getSceneY();
-    }
-});
+            }  
+         });
 
 subScene3D.setOnMouseReleased(e -> {
     mouseDragging = false;
@@ -123,11 +138,14 @@ subScene3D.setOnMouseDragged(e -> {
     lastMouseY = e.getSceneY();
 
     // MOUSE LOOK
-    yaw.setAngle(yaw.getAngle() + dx * mouseSensitivity);   // left/right
-    pitch.setAngle(pitch.getAngle() - dy * mouseSensitivity); // up/down (invert Y)
+    // yaw.setAngle(yaw.getAngle() + dx * mouseSensitivity);   // left/right
+    // pitch.setAngle(pitch.getAngle() - dy * mouseSensitivity); // up/down (invert Y)
+
+      yawNode.setRotate(yawNode.getRotate()-dy*mouseSensitivity);
+      pitchNode.setRotate(pitchNode.getRotate()+dx*mouseSensitivity);
 });
 
-
+        
 
 
         // --- GUI Overlay ---
@@ -184,9 +202,10 @@ AnimationTimer timer = new AnimationTimer() {
                 //         camPos.x, camPos.y, camPos.z, camFor.x,camFor.y,camFor.z,camUp.x,camUp.y,camUp.z,camRight.x,camRight.y,camRight.z
                 // ));
 
-                 cameraPosLabel.setText(String.format(
-                        "Camera Position: [X: %.1f, Y: %.1f, Z: %.1f]\n",
-                        camGroup.getTranslateX(), camGroup.getTranslateY(), camGroup.getTranslateZ()));
+                 String str = "";
+                 str = PrintCoord(str,camGroup.getTranslateX(), camGroup.getTranslateY(), camGroup.getTranslateZ());
+
+                 cameraPosLabel.setText(str);
 
         InputHandle();
     }
@@ -202,6 +221,20 @@ timer.start();
 /////// ======== INPUT HANDLE =============== //////
 /// 
 /// 
+///   
+/// 
+/// 
+    private String PrintCoord(String str,double x,double y,double z)
+    {
+         if(!str.equals(""))
+         {
+            str += "\n";
+         }
+
+         str += String.format("Camera Position: [X: %.1f, Y: %.1f, Z: %.1f]\n",x,y,z);
+
+         return str;
+    }
       private void InputHandle()
       {
         //   if(keysPressed.contains(KeyCode.W)) 
@@ -235,72 +268,98 @@ timer.start();
 Point3D right   = getRight();
 Point3D up      = getUp();
 
+
 if (keysPressed.contains(KeyCode.W)) {
-    camGroup.setTranslateX(camGroup.getTranslateX() + forward.getX() * speed);
-    camGroup.setTranslateY(camGroup.getTranslateY() + forward.getY() * speed);
-    camGroup.setTranslateZ(camGroup.getTranslateZ() + forward.getZ() * speed);
+    movRoot.setTranslateX(movRoot.getTranslateX() + forward.getX() * speed);
+    movRoot.setTranslateY(movRoot.getTranslateY() + forward.getY() * speed);
+    movRoot.setTranslateZ(movRoot.getTranslateZ() + forward.getZ() * speed);
 }
 
 if (keysPressed.contains(KeyCode.S)) {
-    camGroup.setTranslateX(camGroup.getTranslateX() - forward.getX() * speed);
-    camGroup.setTranslateY(camGroup.getTranslateY() - forward.getY() * speed);
-    camGroup.setTranslateZ(camGroup.getTranslateZ() - forward.getZ() * speed);
+    movRoot.setTranslateX(movRoot.getTranslateX() - forward.getX() * speed);
+    movRoot.setTranslateY(movRoot.getTranslateY() - forward.getY() * speed);
+    movRoot.setTranslateZ(movRoot.getTranslateZ() - forward.getZ() * speed);
 }
 
 if (keysPressed.contains(KeyCode.D)) {
-    camGroup.setTranslateX(camGroup.getTranslateX() + right.getX() * speed);
-    camGroup.setTranslateY(camGroup.getTranslateY() + right.getY() * speed);
-    camGroup.setTranslateZ(camGroup.getTranslateZ() + right.getZ() * speed);
+    movRoot.setTranslateX(movRoot.getTranslateX() + right.getX() * speed);
+    movRoot.setTranslateY(movRoot.getTranslateY() + right.getY() * speed);
+    movRoot.setTranslateZ(movRoot.getTranslateZ() + right.getZ() * speed);
 }
 
 if (keysPressed.contains(KeyCode.A)) {
-    camGroup.setTranslateX(camGroup.getTranslateX() - right.getX() * speed);
-    camGroup.setTranslateY(camGroup.getTranslateY() - right.getY() * speed);
-    camGroup.setTranslateZ(camGroup.getTranslateZ() - right.getZ() * speed);
+    movRoot.setTranslateX(movRoot.getTranslateX() - right.getX() * speed);
+    movRoot.setTranslateY(movRoot.getTranslateY() - right.getY() * speed);
+    movRoot.setTranslateZ(movRoot.getTranslateZ() - right.getZ() * speed);
 }
 
 if (keysPressed.contains(KeyCode.SPACE)) {
-    camGroup.setTranslateX(camGroup.getTranslateX() + up.getX() * speed);
-    camGroup.setTranslateY(camGroup.getTranslateY() + up.getY() * speed);
-    camGroup.setTranslateZ(camGroup.getTranslateZ() + up.getZ() * speed);
+    movRoot.setTranslateX(movRoot.getTranslateX() + up.getX() * speed);
+    movRoot.setTranslateY(movRoot.getTranslateY() + up.getY() * speed);
+    movRoot.setTranslateZ(movRoot.getTranslateZ() + up.getZ() * speed);
 }
 
 if (keysPressed.contains(KeyCode.CONTROL)) {
-    camGroup.setTranslateX(camGroup.getTranslateX() - up.getX() * speed);
-    camGroup.setTranslateY(camGroup.getTranslateY() - up.getY() * speed);
-    camGroup.setTranslateZ(camGroup.getTranslateZ() - up.getZ() * speed);
+    movRoot.setTranslateX(movRoot.getTranslateX() - up.getX() * speed);
+    movRoot.setTranslateY(movRoot.getTranslateY() - up.getY() * speed);
+    movRoot.setTranslateZ(movRoot.getTranslateZ() - up.getZ() * speed);
 }
 
   double Rspeed = 1;
 
-           // Pitch (X axis)
-                if(keysPressed.contains(KeyCode.Q)) pitch.setAngle(pitch.getAngle() - Rspeed);  // up
-                if(keysPressed.contains(KeyCode.E))  pitch.setAngle(pitch.getAngle() + Rspeed);
+           // Pitch look UP AND DOWN
+                if(keysPressed.contains(KeyCode.Q))
+                {
+                    // yawNode.setRotationAxis(right);
+                    yawNode.setRotate(yawNode.getRotate()+Rspeed);
 
-                // Yaw (Y axis)
-                if(keysPressed.contains(KeyCode.R))  yaw.setAngle(yaw.getAngle() - Rspeed);  // left
-                if(keysPressed.contains(KeyCode.T))  yaw.setAngle(yaw.getAngle() + Rspeed);  // right
+                } 
+                if(keysPressed.contains(KeyCode.E)) 
+                {
+                    // yawNode.setRotationAxis(right);
+                    yawNode.setRotate(yawNode.getRotate()-Rspeed);
+                }
 
-                // Roll (Z axis)
-                if(keysPressed.contains(KeyCode.Y))  roll.setAngle(roll.getAngle() - Rspeed); // CCW
-                if(keysPressed.contains(KeyCode.U))  roll.setAngle(roll.getAngle() + Rspeed);  // CW
+                // Yaw look LEFT AND RIGHT
+                if(keysPressed.contains(KeyCode.R)) 
+                {
+                    // pitchNode.setRotationAxis(up);
+                    pitchNode.setRotate(pitchNode.getRotate()+Rspeed);
+                }
+                if(keysPressed.contains(KeyCode.T))  
+                {
+                    // pitchNode.setRotationAxis(up);
+                    pitchNode.setRotate(pitchNode.getRotate()-Rspeed);
+                }
+
+                // Roll CCW CW
+                if(keysPressed.contains(KeyCode.Y)) 
+                {
+                    // rollNode.setRotationAxis(forward);
+                    rollNode.setRotate(rollNode.getRotate()+Rspeed);
+                }
+                if(keysPressed.contains(KeyCode.U))  
+                {
+                    //    rollNode.setRotationAxis(forward);
+                    rollNode.setRotate(rollNode.getRotate()-Rspeed);
+                }
       }
 
 
       private Point3D getForward() {
-    return camGroup.localToSceneTransformProperty().get()
+    return rollNode.localToSceneTransformProperty().get()
             .deltaTransform(new Point3D(0, 0, 1))
             .normalize();
 }
 
 private Point3D getUp() {
-    return camGroup.localToSceneTransformProperty().get()
+    return rollNode.localToSceneTransformProperty().get()
             .deltaTransform(new Point3D(0, -1, 0))
             .normalize();
 }
 
 private Point3D getRight() {
-    return camGroup.localToSceneTransformProperty().get()
+    return rollNode.localToSceneTransformProperty().get()
             .deltaTransform(new Point3D(1, 0, 0))
             .normalize();
 }
@@ -406,3 +465,195 @@ private void addAxisBoxes(Group root) {
 // -----------------------------------------------------------------------------
 // ----------------------------- Vector3f Helper --------------------------------
 // -----------------------------------------------------------------------------
+
+
+// import java.util.HashSet;
+
+// import javafx.animation.AnimationTimer;
+// import javafx.application.Application;
+// import javafx.geometry.Point3D;
+// import javafx.scene.Group;
+// import javafx.scene.PerspectiveCamera;
+// import javafx.scene.Scene;
+// import javafx.scene.input.KeyCode;
+// import javafx.scene.paint.Color;
+// import javafx.scene.paint.PhongMaterial;
+// import javafx.scene.shape.Box;
+// import javafx.scene.transform.Affine;
+// import javafx.stage.Stage;
+
+// // ======================= QUATERNION CLASS ============================
+// class Quat {
+
+//     final double w, x, y, z;
+
+//     Quat(double w, double x, double y, double z) {
+//         this.w = w; this.x = x; this.y = y; this.z = z;
+//     }
+
+//     static Quat identity() {
+//         return new Quat(1, 0, 0, 0);
+//     }
+
+//     // Create from axis-angle
+//     static Quat fromAxisAngle(Point3D axis, double angleDeg) {
+//         double rad = Math.toRadians(angleDeg);
+//         double s = Math.sin(rad / 2);
+//         return new Quat(Math.cos(rad / 2), axis.getX()*s, axis.getY()*s, axis.getZ()*s);
+//     }
+
+//     // Multiply two quaternions (combines rotations)
+//     Quat multiply(Quat b) {
+//         return new Quat(
+//                 w*b.w - x*b.x - y*b.y - z*b.z,
+//                 w*b.x + x*b.w + y*b.z - z*b.y,
+//                 w*b.y - x*b.z + y*b.w + z*b.x,
+//                 w*b.z + x*b.y - y*b.x + z*b.w
+//         );
+//     }
+
+//     // Convert quaternion to JavaFX Affine matrix
+//     Affine toAffine() {
+//         double xx = x*x, yy = y*y, zz = z*z;
+//         double xy = x*y, xz = x*z, yz = y*z;
+//         double wx = w*x, wy = w*y, wz = w*z;
+
+//         return new Affine(
+//                 1 - 2*(yy+zz), 2*(xy - wz),   2*(xz + wy),   0,
+//                 2*(xy + wz),   1 - 2*(xx+zz), 2*(yz - wx),   0,
+//                 2*(xz - wy),   2*(yz + wx),   1 - 2*(xx+yy), 0
+//         );
+//     }
+// }
+
+
+
+// // ============================ APP ===================================
+// public class Main extends Application {
+
+//     private final HashSet<KeyCode> keys = new HashSet<>();
+
+//     private Group camGroup = new Group();
+//     private Quat camOrientation = Quat.identity();
+
+//     @Override
+//     public void start(Stage stage) {
+//         // --- Box object
+//         Box box = new Box(200,200,200);
+//         box.setMaterial(new PhongMaterial(Color.ORANGE));
+
+//         Group objectGroup = new Group(box);
+
+//         // --- Camera inside camera group
+//         PerspectiveCamera camera = new PerspectiveCamera(true);
+//         camera.setNearClip(0.1);
+//         camera.setFarClip(10000);
+
+//         camGroup.getChildren().add(camera);
+//         camGroup.setTranslateZ(-600);
+
+//         // --- Root
+//         Group root = new Group(objectGroup, camGroup);
+
+//         Scene scene = new Scene(root, 1200, 800, true);
+//         scene.setFill(Color.SILVER);
+//         scene.setCamera(camera);
+
+//         // --- key press tracking
+//         scene.setOnKeyPressed(e -> keys.add(e.getCode()));
+//         scene.setOnKeyReleased(e -> keys.remove(e.getCode()));
+
+//         // --- Animation loop
+//         new AnimationTimer() {
+//             @Override
+//             public void handle(long now) {
+//                 handleControls();
+//             }
+//         }.start();
+
+//         stage.setTitle("Quaternion Camera Example");
+//         stage.setScene(scene);
+//         stage.show();
+//     }
+
+
+//     // -------------------- CAMERA ROTATION --------------------
+//     private void applyRotation() {
+//         // Overwrite camGroup transform entirely
+//         camGroup.getTransforms().setAll(camOrientation.toAffine());
+//     }
+
+
+//     private void handleControls() {
+//         double speed = 5;
+//         double rotSpeed = 1; // degrees per frame
+
+//         // -------- ROTATION COMMANDS --------
+//         if (keys.contains(KeyCode.Q)) rotatePitch(-rotSpeed);  // look up
+//         if (keys.contains(KeyCode.E)) rotatePitch(+rotSpeed);  // look down
+//         if (keys.contains(KeyCode.R)) rotateYaw(+rotSpeed);    // look left
+//         if (keys.contains(KeyCode.T)) rotateYaw(-rotSpeed);    // look right
+//         if (keys.contains(KeyCode.Y)) rotateRoll(-rotSpeed);   // roll CCW
+//         if (keys.contains(KeyCode.U)) rotateRoll(+rotSpeed);   // roll CW
+
+//         applyRotation();
+
+//         // -------- MOVEMENT --------
+//         Point3D f = getForward();
+//         Point3D r = getRight();
+//         Point3D u = getUp();
+
+//         if (keys.contains(KeyCode.W)) move(f.multiply(speed));
+//         if (keys.contains(KeyCode.S)) move(f.multiply(-speed));
+//         if (keys.contains(KeyCode.D)) move(r.multiply(speed));
+//         if (keys.contains(KeyCode.A)) move(r.multiply(-speed));
+//         if (keys.contains(KeyCode.SPACE)) move(u.multiply(speed));
+//         if (keys.contains(KeyCode.CONTROL)) move(u.multiply(-speed));
+//     }
+
+
+//     private void move(Point3D d) {
+//         camGroup.setTranslateX(camGroup.getTranslateX() + d.getX());
+//         camGroup.setTranslateY(camGroup.getTranslateY() + d.getY());
+//         camGroup.setTranslateZ(camGroup.getTranslateZ() + d.getZ());
+//     }
+
+
+//     // -------------------- QUATERNION ROTATIONS --------------------
+//     private void rotatePitch(double deg) {
+//         Quat q = Quat.fromAxisAngle(new Point3D(1,0,0), deg);
+//         camOrientation = q.multiply(camOrientation);
+//     }
+
+//     private void rotateYaw(double deg) {
+//         Quat q = Quat.fromAxisAngle(new Point3D(0,1,0), deg);
+//         camOrientation = q.multiply(camOrientation);
+//     }
+
+//     private void rotateRoll(double deg) {
+//         Quat q = Quat.fromAxisAngle(new Point3D(0,0,1), deg);
+//         camOrientation = q.multiply(camOrientation);
+//     }
+
+
+//     // -------------------- DIRECTION VECTORS (FROM MATRIX) --------------------
+//     private Point3D getForward() {
+//         return camGroup.localToSceneTransformProperty().get()
+//                 .deltaTransform(new Point3D(0,0,1)).normalize();
+//     }
+
+//     private Point3D getUp() {
+//         return camGroup.localToSceneTransformProperty().get()
+//                 .deltaTransform(new Point3D(0,-1,0)).normalize();
+//     }
+
+//     private Point3D getRight() {
+//         return camGroup.localToSceneTransformProperty().get()
+//                 .deltaTransform(new Point3D(1,0,0)).normalize();
+//     }
+
+
+//     public static void main(String[] args) {
+//         launch(args);
+//     }
+// }
