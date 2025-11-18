@@ -18,7 +18,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 
@@ -36,9 +35,10 @@ public class Main extends Application {
     private Group pitchNode = new Group();
     private Group rollNode = new Group();
 
-//     private Rotate pitch = new Rotate(0, Rotate.X_AXIS);  // look up/down
-//     private Rotate yaw   = new Rotate(0, Rotate.Y_AXIS);  // look left/right
-//     private Rotate roll  = new Rotate(0, Rotate.Z_AXIS);  // tilt (fan flip)
+    private double yawAng = 0;
+    private double pitchAng = 0;
+    private double rollAng = 0;
+
 
 
     private double lastMouseX;
@@ -54,20 +54,11 @@ private double mouseSensitivity = 0.2; // you can adjust this
         camera.setFarClip(3000.f);
         Group root3D = new Group();
 
-        Group grid = makeGrid(400, 50);
-        // root3D.getChildren().add(grid);
 
-        sys = new Group();
-
-        Sphere sp = new Sphere(50);
-
-        Cylinder cd = new Cylinder(10,100);
-        cd.setTranslateY(cd.getTranslateY()-50);
-
-        sys.getChildren().addAll(sp,cd);
 
         
-       root3D.getChildren().add(sys);
+    //    root3D.getChildren().add(sys);
+       root3D.getChildren().add(new DirectionSphere());
         
 
         Box b1 = new Box(100,100,100);
@@ -89,25 +80,17 @@ yawNode.setRotationAxis(Rotate.X_AXIS);
 rollNode.setRotationAxis(Rotate.Z_AXIS);
 
 
-        //  CamGroup.setTranslateX(0);
-        // CamGroup.setTranslateY(0);
-        // CamGroup.setTranslateZ(0);
-
-        //   camera.translateXProperty().set(0);
-        // camera.translateYProperty().set(0);
-        // camera.translateZProperty().set(0);
 
         movRoot.translateXProperty().set(0);
         movRoot.translateYProperty().set(0);
         movRoot.translateZProperty().set(0);
 
-        // camGroup.getTransforms().addAll(pitch,yaw,roll);
         
 
         
         root3D.getChildren().addAll(movRoot,b1);
 
-       
+        // Motion m = new Motion(camGroup);
 
         addAxisBoxes(root3D);
 
@@ -137,12 +120,8 @@ subScene3D.setOnMouseDragged(e -> {
     lastMouseX = e.getSceneX();
     lastMouseY = e.getSceneY();
 
-    // MOUSE LOOK
-    // yaw.setAngle(yaw.getAngle() + dx * mouseSensitivity);   // left/right
-    // pitch.setAngle(pitch.getAngle() - dy * mouseSensitivity); // up/down (invert Y)
-
       yawNode.setRotate(yawNode.getRotate()-dy*mouseSensitivity);
-      pitchNode.setRotate(pitchNode.getRotate()+dx*mouseSensitivity);
+      pitchNode.setRotate(pitchNode.getRotate() + dx*mouseSensitivity);
 });
 
         
@@ -160,9 +139,7 @@ subScene3D.setOnMouseDragged(e -> {
         Scene scene = new Scene(root, 1400, 800, true);
         scene.setFill(Color.BLACK);
 
-// Mouse look
-// scene.setOnMousePressed(camera::onMousePressed);
-// scene.setOnMouseDragged(camera::onMouseDragged);
+
 
 // Keyboard input
 scene.setOnKeyPressed(e -> {
@@ -182,28 +159,9 @@ AnimationTimer timer = new AnimationTimer() {
 
     @Override
     public void handle(long now) {
-        // if (lastTime < 0) lastTime = now;
-        // double deltaTime = (now - lastTime) / 1e9;
-        // lastTime = now;
-
-        // camera.handleInput(1);  // movement speed
-        // camera.handleRotation(deltaTime);      // rotation keys
-
-                 
-
-                //  Vector3f camFor = camera.getForward();
-
-                //  Vector3f camUp = camera.getUp();
-                //  Vector3f camRight = camera.getRight();
-
-                // // Update GUI
-                // cameraPosLabel.setText(String.format(
-                //         "Camera Position: [X: %.1f, Y: %.1f, Z: %.1f]\nForward: [%.2f, %.2f, %.2f]\nUp: [%.2f, %.2f, %.2f]\nRight: [%.2f, %.2f, %.2f]",
-                //         camPos.x, camPos.y, camPos.z, camFor.x,camFor.y,camFor.z,camUp.x,camUp.y,camUp.z,camRight.x,camRight.y,camRight.z
-                // ));
 
                  String str = "";
-                 str = PrintCoord(str,camGroup.getTranslateX(), camGroup.getTranslateY(), camGroup.getTranslateZ());
+                 str = PrintCoord(str,movRoot.getTranslateX(), movRoot.getTranslateY(), movRoot.getTranslateZ());
 
                  cameraPosLabel.setText(str);
 
@@ -237,31 +195,7 @@ timer.start();
     }
       private void InputHandle()
       {
-        //   if(keysPressed.contains(KeyCode.W)) 
-        //   {
-        //     CamGroup.setTranslateZ(CamGroup.getTranslateZ()+10);
-        //   }
-        //   if(keysPressed.contains(KeyCode.S)) 
-        //   {
-        //     CamGroup.setTranslateZ(CamGroup.getTranslateZ()-10);
-        //   }
-        //   if(keysPressed.contains(KeyCode.A)) 
-        //   {
-        //     CamGroup.setTranslateX(CamGroup.getTranslateX()-10);
-        //   }
-        //   if(keysPressed.contains(KeyCode.D)) 
-        //   {
-        //     CamGroup.setTranslateX(CamGroup.getTranslateX()+10);
-        //   }
-        //   if(keysPressed.contains(KeyCode.SPACE)) 
-        //   {
-        //     CamGroup.setTranslateY(CamGroup.getTranslateY()-10);
-
-        //   }
-        //   if(keysPressed.contains(KeyCode.CONTROL))
-        //   {
-        //     CamGroup.setTranslateY(CamGroup.getTranslateY()+10);
-        //   }
+      
 
         double speed = 5;
         Point3D forward = getForward();
@@ -307,7 +241,22 @@ if (keysPressed.contains(KeyCode.CONTROL)) {
 
   double Rspeed = 1;
 
+
+  
+                
+                
+              
+
+
+
+              
+                
+
+         
+
            // Pitch look UP AND DOWN
+
+                 
                 if(keysPressed.contains(KeyCode.Q))
                 {
                     // yawNode.setRotationAxis(right);
@@ -319,6 +268,8 @@ if (keysPressed.contains(KeyCode.CONTROL)) {
                     // yawNode.setRotationAxis(right);
                     yawNode.setRotate(yawNode.getRotate()-Rspeed);
                 }
+
+
 
                 // Yaw look LEFT AND RIGHT
                 if(keysPressed.contains(KeyCode.R)) 
@@ -343,23 +294,28 @@ if (keysPressed.contains(KeyCode.CONTROL)) {
                     //    rollNode.setRotationAxis(forward);
                     rollNode.setRotate(rollNode.getRotate()-Rspeed);
                 }
+                
+
+
+
+
       }
 
 
       private Point3D getForward() {
-    return rollNode.localToSceneTransformProperty().get()
+    return camGroup.localToSceneTransformProperty().get()
             .deltaTransform(new Point3D(0, 0, 1))
             .normalize();
 }
 
 private Point3D getUp() {
-    return rollNode.localToSceneTransformProperty().get()
+    return camGroup.localToSceneTransformProperty().get()
             .deltaTransform(new Point3D(0, -1, 0))
             .normalize();
 }
 
 private Point3D getRight() {
-    return rollNode.localToSceneTransformProperty().get()
+    return camGroup.localToSceneTransformProperty().get()
             .deltaTransform(new Point3D(1, 0, 0))
             .normalize();
 }
