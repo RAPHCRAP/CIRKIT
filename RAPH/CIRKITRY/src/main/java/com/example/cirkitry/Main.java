@@ -1,5 +1,8 @@
 package com.example.cirkitry;
 
+import com.example.cirkitry.graphic.Board;
+import com.example.cirkitry.handler.SelectHandler;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Point3D;
@@ -19,29 +22,7 @@ import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
- import javafx.stage.Stage;
-
-
-
-// import java.util.HashSet;
-
-
-// import javafx.application.Application;
-// import javafx.geometry.Point3D;
-// import javafx.scene.Group;
-// import javafx.scene.PerspectiveCamera;
-// import javafx.scene.Scene;
-// import javafx.scene.SceneAntialiasing;
-// import javafx.scene.SubScene;
-
-// import javafx.scene.input.KeyCode;
-
-// import javafx.scene.paint.Color;
-// import javafx.scene.paint.PhongMaterial;
-// import javafx.scene.shape.Box;
-// import javafx.scene.shape.Cylinder;
-// import javafx.scene.transform.Rotate;
-// import javafx.stage.Stage;
+import javafx.stage.Stage;
 
 
 
@@ -53,10 +34,15 @@ public class Main extends Application {
         // ------------------------
         // 1. Create world
         // ------------------------
-        Group world = new Group();
-        MObj.addAxisBoxes(world);
 
-        MeshView tile = MObj.createRepeatingFloor(new Image(getClass().getResource("/tile.jpeg").toExternalForm()),0.5,100);
+
+        Group world = new Group();
+
+        MObj.addAxisBoxes(world);
+        
+        Board board = new Board("");
+        
+        world.getChildren().add(board);
 
         Group gate = MObj.createGate(-5,-5,2,3,1);
         Group gate1 = MObj.createGate(-5,5,2,3,0);
@@ -66,7 +52,7 @@ public class Main extends Application {
         Group wire = MObj.createWire(1, 1,6,3);
         Group elbow = MObj.createElbowPipe(-1,-1,0);
         Group light = MObj.createLight(3,-3,0);
-        world.getChildren().addAll(tile,gate,joint,wire,gate1,gate2,gate3,elbow,light);
+        world.getChildren().addAll(gate,joint,wire,gate1,gate2,gate3,elbow,light);
 
 
 
@@ -107,6 +93,9 @@ public class Main extends Application {
         // world.getChildren().add(motion.getRootNode());
 
         subScene.setCamera(camera);
+
+
+        SelectHandler SH = new SelectHandler(subScene);
 
         // ------------------------
         // 5. GUI overlay

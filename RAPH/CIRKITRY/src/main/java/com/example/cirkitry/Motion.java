@@ -117,6 +117,7 @@ private void move(Point3D dir, double amount) {
         Point3D up      = getUp();
 
              if (activeKeys.contains(KeyCode.W)) {
+                
         move(forward, speed);
     }
     if (activeKeys.contains(KeyCode.S)) {
@@ -128,7 +129,8 @@ private void move(Point3D dir, double amount) {
     if (activeKeys.contains(KeyCode.D)) {
         move(right, speed);
     }
-    if (activeKeys.contains(KeyCode.SPACE)) {
+    if (activeKeys.contains(KeyCode.ALT)) {
+        
         move(up, speed);
     }
     if (activeKeys.contains(KeyCode.CONTROL)) {
