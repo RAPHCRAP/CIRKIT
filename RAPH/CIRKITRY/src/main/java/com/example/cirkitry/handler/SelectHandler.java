@@ -263,4 +263,6 @@ private void placeSelectionBox(Point3D cell) {
         Bounds bounds = node.getBoundsInParent();
         return bounds.contains(worldPos.getX(), worldPos.getY(), worldPos.getZ());
     }
+
+    // YAY
 }
