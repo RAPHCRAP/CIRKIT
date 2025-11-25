@@ -79,6 +79,18 @@ public class Circuit {
     // Simulation Tick
     // ------------------------------------------------------------
 
+
+    /*
+    Notes / Optional Tweaks
+
+Internal wires inside CompositeComponent should still propagate nextSignal → nextSignal for subcomponents; commit happens at the end.
+
+If you ever want delayed / sequential propagation, you could expand commitPins() to handle specific subcomponent order (like topologically).
+
+This design makes your tick entirely deterministic and simple:
+
+compute() → propagate() → commitPins()
+     */
     public void tick() {
 
         // 1. Let all components read their pin inputs
@@ -86,12 +98,15 @@ public class Circuit {
 
         // 2. Let each component compute its output
         for (Component c : components) {
-            c.computeOutput();
+            c.compute();
         }
 
         // 3. Let each wire propagate signal from output pins to input pins
         for (Wire w : wires) {
             w.propagate();
         }
+
+
+        for (Component sub : components) sub.commitPins();
     }
 }
