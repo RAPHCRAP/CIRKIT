@@ -12,6 +12,7 @@ public class CompositeComponent extends Component {
 
     public CompositeComponent(String name) {
         super(name);
+        this.type = "Abstract{Composite}";
     }
 
     // -------------------------------

@@ -2,9 +2,18 @@ package com.example.cirkitry.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.geometry.Point2D;
+
 public abstract class Component {
 
     protected String name;
+    protected String type;
+
+     // Physical layout
+    protected int width;
+    protected int height;
+    protected int x;  // Top-left position in grid
+    protected int y;
 
     // Logical structure
     protected final List<Pin> inputPins = new ArrayList<>();
@@ -16,6 +25,7 @@ public abstract class Component {
 
     public Component(String name) {
         this.name = name;
+        this.type = "Abstract{Component}";
     }
 
     // ------------------------------
@@ -81,6 +91,89 @@ public abstract class Component {
      * For a primitive gate → do the boolean operation.
      * For a composite component → call compute() on its subcomponents in order.
      */
+// ----------------------------------------------------------------------
+    // SIZE & LAYOUT
+    // ----------------------------------------------------------------------
+
+    protected Point2D computePreferredSize() {
+        int h = Math.max(inputPins.size(), outputPins.size());
+        int w = 3;   // default gate width
+        return new Point2D(w, h);
+    }
+
+    protected void applyPreferredSize() {
+        Point2D d = computePreferredSize();
+        this.width = (int)d.getX();
+        this.height = (int)d.getY();
+    }
+
+    protected void layoutPins() {
+        // Centered vertical layout
+        for (int i = 0; i < inputPins.size(); i++) {
+            int ry = (height * (i + 1)) / (inputPins.size() + 1);
+            inputPins.get(i).setRelative(0, ry);
+        }
+
+        for (int i = 0; i < outputPins.size(); i++) {
+            int ry = (height * (i + 1)) / (outputPins.size() + 1);
+            outputPins.get(i).setRelative(width - 1, ry);
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // GRID PLACEMENT
+    // ----------------------------------------------------------------------
+
+    public boolean canPlace(int gridX, int gridY, Circuit circuit) {
+        for (int cx = gridX; cx < gridX + width; cx++) {
+            for (int cy = gridY; cy < gridY + height; cy++) {
+                if (!circuit.getCell(cx, cy).canPlaceComponent()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void updateOccupiedCells(Circuit circuit) {
+        for (int cx = x; cx < x + width; cx++) {
+            for (int cy = y; cy < y + height; cy++) {
+                circuit.getCell(cx, cy).setComponent(this);
+            }
+        }
+    }
+
+    private void updatePinCells(Circuit circuit) {
+        for (Pin p : inputPins) {
+            circuit.getCell(p.getAbsoluteX(), p.getAbsoluteY()).setPin(p);
+        }
+        for (Pin p : outputPins) {
+            circuit.getCell(p.getAbsoluteX(), p.getAbsoluteY()).setPin(p);
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // MAIN ENTRYPOINT
+    // ----------------------------------------------------------------------
+
+    public boolean placeInCircuit(int gridX, int gridY, Circuit circuit) 
+    {
+        applyPreferredSize();  // compute correct size
+
+        if (!canPlace(gridX, gridY, circuit)) return false;
+
+        this.x = gridX;
+        this.y = gridY;
+
+        layoutPins();
+        updateOccupiedCells(circuit);
+        updatePinCells(circuit);
+
+        return true;
+    }
+
+    
+
     public abstract void compute();
 
     // ------------------------------
@@ -88,6 +181,20 @@ public abstract class Component {
     // ------------------------------
 
     public String getName() {
+        
         return name;
     }
+
+    public int getHeight() {
+        applyPreferredSize();
+        return height;
+    }
+
+
+    public int getWidth() {
+        applyPreferredSize();
+        return width;
+    }
+
+
 }

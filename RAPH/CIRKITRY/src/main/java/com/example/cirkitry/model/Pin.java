@@ -6,6 +6,8 @@ import java.util.Objects;
 
 public class Pin 
 {
+
+    private int relX, relY;
     private final PinType type;
     private final Component parent;
 
@@ -22,6 +24,9 @@ public class Pin
         this.type = Objects.requireNonNull(type);
         this.parent = parent;
     }
+
+
+
 
     // Queries
     public boolean getSignal() {
@@ -65,5 +70,19 @@ public class Pin
 
     public List<Wire> getConnections() {
         return connections;
+    }
+
+
+    public int getAbsoluteX() {
+        return parent.x + relX;
+    }
+
+    public int getAbsoluteY() {
+        return parent.y + relY;
+    }
+
+    public void setRelative(int x, int y) {
+        this.relX = x;
+        this.relY = y;
     }
 }

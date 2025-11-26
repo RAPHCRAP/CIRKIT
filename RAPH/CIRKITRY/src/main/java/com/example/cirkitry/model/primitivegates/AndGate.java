@@ -1,6 +1,9 @@
-package com.example.cirkitry.model;
+package com.example.cirkitry.model.primitivegates;
 
-public class AndGate extends PrimitiveGate {
+import com.example.cirkitry.model.Pin;
+import com.example.cirkitry.model.Primitive;
+
+public class AndGate extends Primitive {
 
     private final Pin inA;
     private final Pin inB;
@@ -8,6 +11,8 @@ public class AndGate extends PrimitiveGate {
 
     public AndGate() {
         super("AND");
+        this.type = "AND";
+        
 
         // Create pins
         inA = addInputPin("A");

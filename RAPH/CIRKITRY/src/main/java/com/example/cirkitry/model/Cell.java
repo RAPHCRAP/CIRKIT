@@ -17,6 +17,10 @@ public class Cell {
     // Wires that pass through this cell (including bends)
     private final List<Wire> wires = new ArrayList<>();
 
+private WireNode node;   // only one node allowed
+
+
+
     public Cell(int x, int y) {
         this.x = x;
         this.y = y;
@@ -82,19 +86,40 @@ public class Cell {
     public boolean hasWire() {
         return !wires.isEmpty();
     }
+public void setNode(WireNode node) {
+    this.node = node;
+}
+
+public void clearNode() {
+    this.node = null;
+}
+
+public WireNode getNode() {
+    return node;
+}
+
+public boolean hasNode() {
+    return node != null;
+}
+
 
     // ---------------------
     // Utility / conflict checks
     // ---------------------
 
     public boolean canPlaceComponent() {
-        // No component here AND no pin AND no wires
-        return component == null && pin == null && wires.isEmpty();
-    }
+    return component == null && pin == null && wires.isEmpty() && node == null;
+}
 
-    public boolean canPlaceWire() {
-        // Wires can overlap other wires + empty space,
-        // but cannot overlap pins or components
-        return component == null && pin == null;
-    }
+
+ public boolean canPlaceWire(Wire wire) {
+    // Cannot occupy cells with components, pins, or nodes
+    if (component != null || pin != null || node != null)
+        return false;
+
+    // Cannot place the SAME wire twice in the same cell
+    return !wires.contains(wire);
+}
+
+
 }

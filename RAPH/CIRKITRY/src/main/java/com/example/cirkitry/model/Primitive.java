@@ -1,9 +1,10 @@
 package com.example.cirkitry.model;
 
-public abstract class PrimitiveGate extends Component {
+public abstract class Primitive extends Component {
 
-    public PrimitiveGate(String name) {
+    public Primitive(String name) {
         super(name);
+        this.type = "Abstract{Composite}";
     }
 
     @Override

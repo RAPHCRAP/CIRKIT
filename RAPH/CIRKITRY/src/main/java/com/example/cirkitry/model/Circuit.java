@@ -40,39 +40,152 @@ public class Circuit {
     // Component Management
     // ------------------------------------------------------------
 
-    public void addComponent(Component c) {
-        // Register the component
-        components.add(c);
+    public boolean addComponent(int gridX, int gridY, Component c) {
 
-        // For each occupied cell the component claims:
-        for (Cell cell : c.getOccupiedCells()) {
-            int x = cell.getX();
-            int y = cell.getY();
+    // 1. First compute the component’s proper size
 
-            Cell gridCell = getCell(x, y);
-            if (gridCell == null) continue;
+    int w = c.getWidth();
+    int h = c.getHeight();
 
-            // Occupy the cell
-            gridCell.setComponent(c);
+    // 2. Bounds check
+    if (gridX < 0 || gridY < 0 ||
+        gridX + w > width ||
+        gridY + h > height) {
+        return false;
+    }
+
+    // 3. Collision check using the component's real size
+    if (!c.canPlace(gridX, gridY, this)) {
+        return false;
+    }
+
+    // 4. Now safely place it
+    boolean ok = c.placeInCircuit(gridX, gridY, this);
+    if (!ok) return false;
+
+    // 5. Finally register it
+    components.add(c);
+    return true;
+}
+
+public boolean removeComponent(Component c) {
+    if (c == null) return false;
+    if (!components.contains(c)) return false;
+
+    // 1. Remove wires connected to this component
+    removeWiresConnectedToComponent(c);
+
+    // 2. Clear occupied cells
+    for (Cell cell : c.getOccupiedCells()) {
+        Cell gridCell = getCell(cell.getX(), cell.getY());
+        if (gridCell != null && gridCell.getComponent() == c) {
+            gridCell.setComponent(null);
         }
     }
+
+    // 3. Clear pin cells
+    for (Pin pin : c.getInputPins()) {
+        clearPinFromGrid(pin);
+    }
+    for (Pin pin : c.getOutputPins()) {
+        clearPinFromGrid(pin);
+    }
+
+    // 4. Remove component from list
+    components.remove(c);
+
+    return true;
+}
+
+private void clearPinFromGrid(Pin pin) {
+    if (pin == null) return;
+    int x = pin.getAbsoluteX();
+    int y = pin.getAbsoluteY();
+    Cell cell = getCell(x, y);
+    if (cell != null && cell.getPin() == pin) {
+        cell.setPin(null);
+    }
+}
+
+private void removeWiresConnectedToComponent(Component c) {
+
+    List<Wire> toRemove = new ArrayList<>();
+
+    for (Wire w : wires) {
+
+        // CASE 1: wire source pin belongs to component
+        if (w.getSource().getParent() == c) {
+            toRemove.add(w);
+            continue;
+        }
+
+        // CASE 2: any sink belongs to component
+        boolean sinkOwned = false;
+        for (Pin sink : w.getSinks()) {
+            if (sink.getParent() == c) {
+                sinkOwned = true;
+                break;
+            }
+        }
+
+        if (sinkOwned) {
+            toRemove.add(w);
+        }
+    }
+
+    // REMOVE WIRES + cleanup grid
+    for (Wire w : toRemove) {
+        removeWire(w);
+    }
+}
+
+
 
 
     // ------------------------------------------------------------
     // Wire Management
     // ------------------------------------------------------------
 
-    // public void addWire(Wire w) {
-    //     wires.add(w);
+public boolean addWire(Wire w)
+{
+    if (!w.canPlace(this))
+    {
+       return false;
+    }
+     // 4. Now safely place it
+    boolean ok = w.placeInCircuit(this);
+    if (!ok) return false;
 
-    //     // Mark wire segments onto the grid
-    //     for (Cell c : w.getCells()) {
-    //         Cell gridCell = getCell(c.getX(), c.getY());
-    //         if (gridCell == null) continue;
+    // 5. Finally register it
+    wires.add(w);
+    return true;
+    
+}
 
-    //         gridCell.setWire(w);
-    //     }
-    // }
+public void removeWire(Wire w) {
+    if (!wires.contains(w)) return;
+
+    // remove its occupied cells
+    for (Cell cell : w.getOccupiedCells()) {
+        Cell gridCell = getCell(cell.getX(), cell.getY());
+        if (gridCell != null) {
+            gridCell.removeWire(w);
+        }
+    }
+
+    wires.remove(w);
+}
+
+
+    public List<Component> getComponents()
+    {
+        return components;
+    }
+
+    public List<Wire> getWires()
+    {
+        return wires;
+    }
 
 
     // ------------------------------------------------------------
