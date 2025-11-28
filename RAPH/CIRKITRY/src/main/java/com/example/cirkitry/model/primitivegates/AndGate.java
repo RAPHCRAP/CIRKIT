@@ -13,11 +13,14 @@ public class AndGate extends Primitive {
         super("AND");
         this.type = "AND";
         
+        this.width =5;
+        this.height =4;
 
         // Create pins
         inA = addInputPin("A");
         inB = addInputPin("B");
         outC = addOutputPin("C");
+
     }
 
     @Override

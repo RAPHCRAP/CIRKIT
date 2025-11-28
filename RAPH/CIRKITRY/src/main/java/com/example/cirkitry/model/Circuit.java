@@ -2,6 +2,8 @@ package com.example.cirkitry.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.cirkitry.scale.Scale;
+
 public class Circuit {
 
     private final int width;
@@ -13,8 +15,8 @@ public class Circuit {
 
 
     public Circuit(int width, int height) {
-        this.width = width;
-        this.height = height;
+        this.width = Scale.WSize;
+        this.height = Scale.WSize;
 
         grid = new Cell[width][height];
 
@@ -29,44 +31,59 @@ public class Circuit {
     // Grid Access
     // ------------------------------------------------------------
 
-    public Cell getCell(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
-            return null;
-        return grid[x][y];
+    public Cell getCell(int x, int y) 
+    {
+        int indexX = x + width / 2;
+        int indexY = y + height / 2;
+
+        if (indexX < 0 || indexX >= width || indexY < 0 || indexY >= height)
+        {
+            return null; 
+        }
+
+        return grid[indexX][indexY];
     }
 
 
     // ------------------------------------------------------------
     // Component Management
     // ------------------------------------------------------------
-
-    public boolean addComponent(int gridX, int gridY, Component c) {
-
-    // 1. First compute the component’s proper size
+public boolean addComponent(int worldX, int worldY, Component c) {
 
     int w = c.getWidth();
     int h = c.getHeight();
 
-    // 2. Bounds check
-    if (gridX < 0 || gridY < 0 ||
-        gridX + w > width ||
-        gridY + h > height) {
+    // Calculate world bounds of component
+    int minX = worldX;
+    int maxX = worldX + w - 1;
+
+    int minY = worldY;
+    int maxY = worldY + h - 1;
+
+    int halfW = width  / 2;
+    int halfH = height / 2;
+
+    // ----- 1. Bounds check in world coordinates -----
+    if (minX < -halfW || maxX >= halfW ||
+        minY < -halfH || maxY >= halfH)
+    {
         return false;
     }
 
-    // 3. Collision check using the component's real size
-    if (!c.canPlace(gridX, gridY, this)) {
+    // ----- 2. Collision check -----
+    if (!c.canPlace(worldX, worldY, this)) {
         return false;
     }
 
-    // 4. Now safely place it
-    boolean ok = c.placeInCircuit(gridX, gridY, this);
+    // ----- 3. Actually place the component -----
+    boolean ok = c.placeInCircuit(worldX, worldY, this);
     if (!ok) return false;
 
-    // 5. Finally register it
+    // ----- 4. Register it -----
     components.add(c);
     return true;
 }
+
 
 public boolean removeComponent(Component c) {
     if (c == null) return false;
@@ -165,7 +182,15 @@ public boolean addWire(Wire w)
 public void removeWire(Wire w) {
     if (!wires.contains(w)) return;
 
-    // remove its occupied cells
+    // 1. Clear wire nodes from grid
+    for (WireNode node : new ArrayList<>(w.getNodes())) {
+        Cell c = getCell(node.getX(), node.getY());
+        if (c != null && c.getNode() == node) {
+            c.clearNode();
+        }
+    }
+
+    // 2. Clear wire from occupied cells
     for (Cell cell : w.getOccupiedCells()) {
         Cell gridCell = getCell(cell.getX(), cell.getY());
         if (gridCell != null) {
@@ -173,8 +198,10 @@ public void removeWire(Wire w) {
         }
     }
 
+    // 3. Remove wire from circuit list
     wires.remove(w);
 }
+
 
 
     public List<Component> getComponents()

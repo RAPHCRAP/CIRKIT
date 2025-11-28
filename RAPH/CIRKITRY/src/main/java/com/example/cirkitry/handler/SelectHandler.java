@@ -235,9 +235,9 @@ private void placeSelectionBox(Point3D cell) {
     }
     
     private void selectAtPosition(Point3D worldPos) {
-        // Your selection logic here
-        System.out.printf("Selected at: (%.2f, %.2f, %.2f)\n", 
-            worldPos.getX(), worldPos.getY(), worldPos.getZ());
+        // // Your selection logic here
+        // System.out.printf("Selected at: (%.2f, %.2f, %.2f)\n", 
+        //     worldPos.getX(), worldPos.getY(), worldPos.getZ());
     }
     
     private List<Node> getAllSelectableNodes() {

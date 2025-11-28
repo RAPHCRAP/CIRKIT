@@ -107,19 +107,72 @@ public boolean hasNode() {
     // Utility / conflict checks
     // ---------------------
 
+    public boolean canPlaceComponent(Component comp) {
+
+    // If a component is already on this cell
+    if (component != null) {
+        // Allowed only if it's the SAME component
+        return component == comp;
+    }
+
+    // Otherwise, check normal rules
+    return pin == null && wires.isEmpty() && node == null;
+}
+
     public boolean canPlaceComponent() {
     return component == null && pin == null && wires.isEmpty() && node == null;
-}
+     }
 
+public boolean canPlaceWire(Wire wire) {
 
- public boolean canPlaceWire(Wire wire) {
-    // Cannot occupy cells with components, pins, or nodes
-    if (component != null || pin != null || node != null)
+    // ===== COMPONENT BLOCK =====
+    if (component != null)
         return false;
 
-    // Cannot place the SAME wire twice in the same cell
-    return !wires.contains(wire);
+    // ===== PIN LOGIC =====
+    if (pin != null) {
+
+// CASE 1: This pin is the wire's source pin (OUTPUT)
+if (pin == wire.getSource()) {
+    // Only allow if no nodes exist yet (wire not placed)
+    if (wire.getNodes().isEmpty() || wire.getNodes().get(0).getX() != this.x || wire.getNodes().get(0).getY() != this.y) {
+        return true;
+    } else {
+        // Wire already has its first node here → cannot place again
+        return false;
+    }
 }
+
+
+        // CASE 2: Output pin but not the wire's source → cannot place
+        if (pin.isOutput())
+            return false;
+
+        // CASE 3: Input pin (valid attach point)
+        if (pin.isInput()) {
+
+            // Already connected to this wire → fine
+            if (pin.getConnections().contains(wire))
+                return true;
+
+            // If input pin has another wire and you only allow single-source:
+            if (!pin.getConnections().isEmpty())
+                return false;
+
+            // Can attach to this input pin
+            return true;
+        }
+    }
+
+    // ===== WIRE NODE LOGIC =====
+    // If a different wire already owns this node, block
+    if (node != null && node.getWire() != wire)
+        return false;
+
+    // Allow crossing wires + allow reusing your own cells
+    return true;
+}
+
 
 
 }

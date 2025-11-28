@@ -96,8 +96,8 @@ public abstract class Component {
     // ----------------------------------------------------------------------
 
     protected Point2D computePreferredSize() {
-        int h = Math.max(inputPins.size(), outputPins.size());
-        int w = 3;   // default gate width
+        int h = Math.max(Math.max(inputPins.size(), outputPins.size()),this.height);
+        int w = Math.max(3,this.width);   // default gate width
         return new Point2D(w, h);
     }
 
