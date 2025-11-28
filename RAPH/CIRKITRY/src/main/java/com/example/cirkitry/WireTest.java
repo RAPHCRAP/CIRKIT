@@ -1,6 +1,7 @@
 package com.example.cirkitry;
 
 import com.example.cirkitry.model.Circuit;
+import com.example.cirkitry.model.Component;
 import com.example.cirkitry.model.Wire;
 import com.example.cirkitry.model.WireNode;
 import com.example.cirkitry.model.primitivegates.AndGate;
@@ -129,6 +130,20 @@ public class WireTest {
         // }
     }
 
+
+
+     public static Circuit demoCircuit()
+     {
+        Circuit circut = new Circuit(100, 100);
+
+        Component comp = new AndGate();
+
+        circut.addComponent(8, 8, comp);
+
+        return circut;
+
+        
+     }
      public static void displayWireNodes(Wire wire) {
         if (wire == null) {
             System.out.println("Wire is null");

@@ -12,6 +12,7 @@ import javafx.scene.Node;
 public class ViewBuilder {
 
     private final Group world;
+    
 
     public ViewBuilder(Group root) {
         this.world = root;
@@ -23,7 +24,11 @@ public class ViewBuilder {
         world.getChildren().removeAll();
         
 
-        for (Component comp : circuit.getComponents()) {
+        for (Component comp : circuit.getComponents()) 
+        {
+            
+
+            
             Node model = buildComponentModel(comp);
             model.setUserData(comp); // link visual to logic
             world.getChildren().add(model);
@@ -42,7 +47,8 @@ public class ViewBuilder {
     {
         if (comp instanceof Primitive || comp instanceof CompositeComponent) 
         {
-            return new ChipModel(comp);
+                
+            return new ViewChip("",comp);
         } 
         // else if (comp instanceof Switch) 
         // {

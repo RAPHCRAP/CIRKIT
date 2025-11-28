@@ -195,6 +195,15 @@ public abstract class Component {
         applyPreferredSize();
         return width;
     }
+    
+    public int getX()
+    {
+        return x;
+    }
 
+    public int getY()
+    {
+        return y;
+    }
 
 }

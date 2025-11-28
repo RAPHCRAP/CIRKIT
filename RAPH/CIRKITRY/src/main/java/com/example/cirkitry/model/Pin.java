@@ -81,6 +81,16 @@ public class Pin
         return parent.y + relY;
     }
 
+    public int getRelativeX()
+    {
+        return relX;
+    }
+
+    public int getRelativeY()
+    {
+        return relY;
+    }
+
     public void setRelative(int x, int y) {
         this.relX = x;
         this.relY = y;

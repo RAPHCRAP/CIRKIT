@@ -2,6 +2,8 @@ package com.example.cirkitry;
 
 import com.example.cirkitry.graphic.Board;
 import com.example.cirkitry.handler.SelectHandler;
+import com.example.cirkitry.model.Circuit;
+import com.example.cirkitry.wmodel.ViewBuilder;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -37,6 +39,10 @@ public class Main extends Application {
 
 
         Group world = new Group();
+        Circuit circuit = WireTest.demoCircuit();
+        ViewBuilder vb = new ViewBuilder(world);
+        vb.build(circuit);
+    
 
         MObj.addAxisBoxes(world);
         
@@ -54,7 +60,7 @@ public class Main extends Application {
         Group light = MObj.createLight(3,-3,0);
         world.getChildren().addAll(gate,joint,wire,gate1,gate2,gate3,elbow,light);
 
-
+        
 
 
 

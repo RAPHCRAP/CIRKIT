@@ -7,6 +7,7 @@ com\example\cirkitry\scale\Scale.class
 com\example\cirkitry\model\WireSegment.class
 com\example\cirkitry\model\primitives\Led.class
 com\example\cirkitry\model\PrimitiveBootloader.class
+com\example\cirkitry\wmodel\ViewChip.class
 com\example\cirkitry\model\Component.class
 com\example\cirkitry\model\primitives\Switch.class
 com\example\cirkitry\model\CompositeComponent.class
