@@ -5,12 +5,14 @@ com\example\cirkitry\MotionF.class
 com\example\cirkitry\model\ComponentDefinition$SubcomponentDef.class
 com\example\cirkitry\scale\Scale.class
 com\example\cirkitry\model\WireSegment.class
+com\example\cirkitry\mathsutil\MathUtils.class
 com\example\cirkitry\model\primitives\Led.class
 com\example\cirkitry\model\PrimitiveBootloader.class
 com\example\cirkitry\wmodel\ViewChip.class
 com\example\cirkitry\model\Component.class
 com\example\cirkitry\model\primitives\Switch.class
 com\example\cirkitry\model\CompositeComponent.class
+com\example\cirkitry\wmodel\Pos.class
 com\example\gui\Main.class
 com\example\cirkitry\model\AbstractSource.class
 com\example\cirkitry\model\Cell.class
@@ -18,10 +20,12 @@ com\example\freefly\Main$1.class
 com\example\cirkitry\model\AbstractSink.class
 com\example\gridy\Main.class
 com\example\cirkitry\model\Primitive.class
+com\example\cirkitry\wmodel\ViewLED.class
 com\example\rotatingcuboid\Main.class
 com\example\cirkitry\motionApp.class
 com\example\cirkitry\model\ComponentDefinition$PinRef.class
 com\example\cirkitry\model\primitivegates\NotGate.class
+com\example\cirkitry\wmodel\InputPin.class
 com\example\cirkitry\model\primitivegates\NandGate.class
 com\example\cirkitry\model\primitivegates\XorGate.class
 com\example\cirkitry\model\primitivegates\AndGate.class
@@ -45,6 +49,7 @@ com\example\cirkitry\model\Pin.class
 com\example\gridy\Vector3f.class
 com\example\cirkitry\Motion.class
 com\example\freefly\Main.class
+com\example\cirkitry\wmodel\OutputPin.class
 com\example\cirkitry\model\ComponentBuilder.class
 com\example\rotatingcuboid\Main$1.class
 com\example\gridy\Main$1.class
@@ -53,8 +58,11 @@ com\example\cirkitry\model\ComponentDefinition$ConnectionDef.class
 com\example\cirkitry\model\PinType.class
 com\example\cirkitry\model\ComponentFactory.class
 com\example\cirkitry\model\Circuit.class
+com\example\cirkitry\wmodel\ViewSwitch.class
 com\example\manyobjects\Main.class
 com\example\cirkitry\model\primitivegates\NorGate.class
+com\example\cirkitry\graphic\Arrow.class
 com\example\freefly\Vector3f.class
+com\example\cirkitry\wmodel\WireModel.class
 com\example\cirkitry\GUIOverlay.class
 com\example\cirkitry\Main.class

@@ -1,6 +1,5 @@
 package com.example.cirkitry;
 
-import com.example.cirkitry.graphic.Board;
 import com.example.cirkitry.handler.SelectHandler;
 import com.example.cirkitry.model.Circuit;
 import com.example.cirkitry.wmodel.ViewBuilder;
@@ -13,16 +12,12 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
-import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.shape.CullFace;
 import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
-import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 
@@ -45,20 +40,19 @@ public class Main extends Application {
     
 
         MObj.addAxisBoxes(world);
-        
-        Board board = new Board("");
-        
-        world.getChildren().add(board);
 
-        Group gate = MObj.createGate(-5,-5,2,3,1);
-        Group gate1 = MObj.createGate(-5,5,2,3,0);
-        Group gate2 = MObj.createGate(5,5,2,3,0);
-        Group gate3 = MObj.createGate(5,-5,2,3,0);
-        Group joint = MObj.createConnect(2,2,true,true,false,true,0);
-        Group wire = MObj.createWire(1, 1,6,3);
-        Group elbow = MObj.createElbowPipe(-1,-1,0);
-        Group light = MObj.createLight(3,-3,0);
-        world.getChildren().addAll(gate,joint,wire,gate1,gate2,gate3,elbow,light);
+
+        
+
+        // Group gate = MObj.createGate(-5,-5,2,3,1);
+        // Group gate1 = MObj.createGate(-5,5,2,3,0);
+        // Group gate2 = MObj.createGate(5,5,2,3,0);
+        // Group gate3 = MObj.createGate(5,-5,2,3,0);
+        // Group joint = MObj.createConnect(2,2,true,true,false,true,0);
+        // Group wire = MObj.createWire(1, 1,6,3);
+        // Group elbow = MObj.createElbowPipe(-1,-1,0);
+        // Group light = MObj.createLight(3,-3,0);
+        // world.getChildren().addAll(gate,joint,wire,gate1,gate2,gate3,elbow,light);
 
         
 
@@ -101,7 +95,7 @@ public class Main extends Application {
         subScene.setCamera(camera);
 
 
-        SelectHandler SH = new SelectHandler(subScene);
+        SelectHandler SH = new SelectHandler(subScene,circuit);
 
         // ------------------------
         // 5. GUI overlay
@@ -141,7 +135,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        WireTest.test(args);
+        
         launch();
     }
 }
@@ -643,61 +637,6 @@ bulb.setTranslateY(y*50-(50*3)/2);
 
     return bulb;
 
-}
-
-public static MeshView createRepeatingFloor(
-        Image img,
-        double texelScale,
-        double repeatScale        // how many times texture repeats in world space
-) {
-    float imgW = (float) img.getWidth();   // pixel width
-    float imgH = (float) img.getHeight();  // pixel height
-
-    // Natural world size of ONE texture tile
-    float tileW = (float) (imgW * texelScale);
-    float tileH = (float) (imgH * texelScale);
-
-    // Final world size
-    float worldW = tileW * (float) repeatScale;
-    float worldH = tileH * (float) repeatScale;
-
-    float halfW = worldW / 2f;
-    float halfH = worldH / 2f;
-
-    TriangleMesh mesh = new TriangleMesh();
-
-    // WORLD GEOMETRY
-    mesh.getPoints().addAll(
-            -halfW, 0, -halfH,
-             halfW, 0, -halfH,
-             halfW, 0,  halfH,
-            -halfW, 0,  halfH
-    );
-
-    // UV COORDS (TILING)
-    // if repeatScale = 2 → UV goes 0..2
-    mesh.getTexCoords().addAll(
-            0, 0,
-            (float) repeatScale, 0,
-            (float) repeatScale, (float) repeatScale,
-            0, (float) repeatScale
-    );
-
-    mesh.getFaces().addAll(
-            0,0, 1,1, 2,2,
-            0,0, 2,2, 3,3
-    );
-
-    PhongMaterial mat = new PhongMaterial();
-    mat.setDiffuseMap(img);
-
-    MeshView mv = new MeshView(mesh);
-    mv.setMaterial(mat);
-    mv.setCullFace(CullFace.NONE);
-    mv.getTransforms().add(new Rotate(90,Rotate.X_AXIS));
-    
-
-    return mv;
 }
 
 

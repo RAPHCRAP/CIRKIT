@@ -200,6 +200,8 @@ public boolean extendEdge(WireNode n, int x2, int y2, Circuit circuit) {
         if (!canPlaceLine(midX, midY, x2, y2, circuit, proposedCells, false)) return false; // mid is new, do NOT skip
     }
 
+    
+
     // Safe to create nodes & edges
     WireNode end = ensureNode(x2, y2);
     if (x1 == x2 || y1 == y2) {
@@ -387,6 +389,10 @@ private void updateOccupiedCells(List<Cell> newCells, Circuit circuit) {
 
 
 
+  public List<WireEdge> getEdges()
+    {
+        return edges;
+    }
 
     public List<WireNode> getNodes()
     {

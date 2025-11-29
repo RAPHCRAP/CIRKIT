@@ -3,6 +3,7 @@ package com.example.cirkitry.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.cirkitry.model.Circuit;
 import com.example.cirkitry.scale.Scale;
 
 import javafx.geometry.Bounds;
@@ -25,15 +26,17 @@ public class SelectHandler {
     private Camera camera;
     private Parent root;
     private double mouseX, mouseY;
+    private Circuit circuit;
      private Box selectionBox;
     private double cellSize = Scale.WCellScale; 
     private int selectedCellX;
     private int selectedCellY;
     
-    public SelectHandler(SubScene scene3D) {
+    public SelectHandler(SubScene scene3D,Circuit circuit) {
         this.scene3D = scene3D;
         this.camera = scene3D.getCamera();
         this.root = scene3D.getRoot();
+        this.circuit = circuit;
 
 
 
@@ -53,7 +56,7 @@ public class SelectHandler {
     }
 
     private Box createSelectionBox() {
-        Box box = new Box(cellSize, cellSize, 1); // Thin box to visualize XY plane
+        Box box = new Box(cellSize, cellSize, 10); // Thin box to visualize XY plane
         PhongMaterial mat = new PhongMaterial();
         mat.setDiffuseColor(Color.rgb(255, 255, 0, 0.4)); // Semi-transparent yellow
         mat.setSpecularColor(Color.TRANSPARENT);
@@ -73,6 +76,9 @@ public class SelectHandler {
         scene3D.setOnMouseClicked(event -> {
             mouseX = event.getX();
             mouseY = event.getY();
+
+            
+            
             handleSelection();
         });
     }
@@ -188,7 +194,7 @@ private Point3D toWorldDirection(Point3D camDir) {
             placeSelectionBox(cell);
 
             // Optional: call your actual selection logic
-            selectAtPosition(worldPos);
+            // selectAtPosition(cell);
         }
     }
     
@@ -197,8 +203,34 @@ private Point3D toWorldDirection(Point3D camDir) {
         
         if (worldPos != null) {
             // Perform actual selection
-            selectAtPosition(worldPos);
+             Point3D coord = worldToGridCell(worldPos);
+
+
+             selectAtPosition(coord);
+
+            //  int gridX= (int)coord.getX();
+            // int gridY= (int)coord.getY();
+
+            // Cell c = circuit.getCell(gridX, gridY);
+            
+
+            // if(c.hasNode())
+            // {
+            //     if(c.getNode().getDegree()<4)
+            //     {
+
+            //     }
+            // }
+
+
+
         }
+    }
+
+    private Point3D getMouseCell()
+    {
+       return worldToGridCell(screenToWorld(mouseX, mouseY));
+
     }
     
 private Point3D worldToGridCell(Point3D worldPos) {
@@ -236,8 +268,8 @@ private void placeSelectionBox(Point3D cell) {
     
     private void selectAtPosition(Point3D worldPos) {
         // // Your selection logic here
-        // System.out.printf("Selected at: (%.2f, %.2f, %.2f)\n", 
-        //     worldPos.getX(), worldPos.getY(), worldPos.getZ());
+        System.out.printf("Selected at: (%.2f, %.2f, %.2f)\n", 
+            worldPos.getX(), worldPos.getY(), worldPos.getZ());
     }
     
     private List<Node> getAllSelectableNodes() {

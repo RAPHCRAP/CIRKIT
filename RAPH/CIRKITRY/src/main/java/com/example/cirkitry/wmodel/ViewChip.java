@@ -1,10 +1,10 @@
 package com.example.cirkitry.wmodel;
 
 import com.example.cirkitry.model.Component;
+import com.example.cirkitry.model.Pin;
 import com.example.cirkitry.scale.Scale;
 
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
@@ -13,6 +13,9 @@ public class ViewChip extends Group
 {
      private final String id;  // stable ID
     private Component model;  // optional for committed mode
+    private double scale =0;
+
+
 
     public ViewChip(String id,Component comp)
     {
@@ -33,7 +36,7 @@ public class ViewChip extends Group
         int w = comp.getWidth();
         int h = comp.getHeight();
 
-        double scale = Scale.WCellScale;
+        scale = Scale.WCellScale;
 
         double BoxH = scale*(w-2);
         double BoxW = scale*h;
@@ -43,31 +46,29 @@ public class ViewChip extends Group
         PhongMaterial bluePos = new PhongMaterial(Color.BLUE);
         body.setMaterial(bluePos);
          
-        setPosition(x+1,y,w-2,h,body);
+        Pos.setRecPosition(x+1,y,w-2,h,body);
 
         this.getChildren().add(body);
 
-        // for(Pin p:comp.getInputPins())
-        // {
-        //     Group g = createInputPin();
-        //     setPosition(p.get())
-        // }
+        for(Pin p:comp.getInputPins())
+        {
+            Group g = new InputPin(scale);
+            Pos.setRecPosition(p.getAbsoluteX(),p.getAbsoluteY(),1,1,g);
+            this.getChildren().add(g);
+
+        }
+
+        
+        for(Pin p:comp.getOutputPins())
+        {
+            Group g = new OutputPin(scale);
+            Pos.setRecPosition(p.getAbsoluteX(),p.getAbsoluteY(),1,1,g);
+            this.getChildren().add(g);
+
+        }
          
     }
 
-
-    private void setPosition(int x, int y, int w, int h, Node node) {
-
-    double unit = Scale.WCellScale;   // or your cellSize variable
-
-    double centerX = (x + w / 2.0) * unit;
-    double centerY = (y + h / 2.0) * unit;
-    double centerZ = 0;  // or whatever plane you want
-
-    node.setTranslateX(centerX);
-    node.setTranslateY(centerY);
-    node.setTranslateZ(centerZ);
-}
 
 
 

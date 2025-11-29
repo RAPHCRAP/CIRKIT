@@ -126,8 +126,9 @@ public boolean hasNode() {
 public boolean canPlaceWire(Wire wire) {
 
     // ===== COMPONENT BLOCK =====
-    if (component != null)
-        return false;
+if (component != null && pin == null)
+    return false;
+
 
     // ===== PIN LOGIC =====
     if (pin != null) {

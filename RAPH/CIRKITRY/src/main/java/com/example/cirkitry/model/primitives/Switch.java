@@ -17,7 +17,12 @@ public class Switch extends AbstractSource {
         out.setNextSignal(state);
     }
 
-    
+    @Override
+    protected void layoutPins()
+    {
+        out.setRelative(3, 1);
+    }
+
     // Toggle the switch
     public void toggle() {
         state = !state;

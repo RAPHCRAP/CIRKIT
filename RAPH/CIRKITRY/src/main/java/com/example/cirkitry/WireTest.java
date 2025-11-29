@@ -1,10 +1,14 @@
 package com.example.cirkitry;
 
+import com.example.cirkitry.model.AbstractSink;
+import com.example.cirkitry.model.AbstractSource;
 import com.example.cirkitry.model.Circuit;
-import com.example.cirkitry.model.Component;
+import com.example.cirkitry.model.Pin;
 import com.example.cirkitry.model.Wire;
+import com.example.cirkitry.model.WireEdge;
 import com.example.cirkitry.model.WireNode;
 import com.example.cirkitry.model.primitivegates.AndGate;
+import com.example.cirkitry.model.primitives.Led;
 import com.example.cirkitry.model.primitives.Switch;
 
 public class WireTest {
@@ -13,59 +17,59 @@ public class WireTest {
         // ---------------------------
         // 1. Initialize Circuit
         // ---------------------------
-        Circuit circuit = new Circuit(100, 100); // 10x10 grid
+//         Circuit circuit = new Circuit(100, 100); // 10x10 grid
 
-        // ---------------------------
-        // 2. Add 2 Switches
-        // ---------------------------
-        Switch sw1 = new Switch();
-        Switch sw2 = new Switch();
+//         // ---------------------------
+//         // 2. Add 2 Switches
+//         // ---------------------------
+//         Switch sw1 = new Switch();
+//         Switch sw2 = new Switch();
 
-        // Place switches on circuit
-        if(circuit.addComponent(1,1,sw1)) System.out.print("Placed switch 1\n"); // example positions
-        if(circuit.addComponent(1,4,sw2)) System.out.print("Placed switch 2\n"); 
+//         // Place switches on circuit
+//         if(circuit.addComponent(1,1,sw1)) System.out.print("Placed switch 1\n"); // example positions
+//         if(circuit.addComponent(1,4,sw2)) System.out.print("Placed switch 2\n"); 
 
-        Wire w1 = new Wire(sw1.getOut().getAbsoluteX(), sw1.getOut().getAbsoluteY(), sw1.getOut());
-        Wire w2 = new Wire(sw2.getOut().getAbsoluteX(), sw2.getOut().getAbsoluteY(), sw2.getOut());
+//         Wire w1 = new Wire(sw1.getOut().getAbsoluteX(), sw1.getOut().getAbsoluteY(), sw1.getOut());
+//         Wire w2 = new Wire(sw2.getOut().getAbsoluteX(), sw2.getOut().getAbsoluteY(), sw2.getOut());
 
 
-       if(circuit.addWire(w1)) System.out.print("added wire 1\n");
-       if(circuit.addWire(w2)) System.out.print("added wire 2\n");
+//        if(circuit.addWire(w1)) System.out.print("added wire 1\n");
+//        if(circuit.addWire(w2)) System.out.print("added wire 2\n");
 
-       displayWireNodes(w1);
+//        displayWireNodes(w1);
 
-       WireNode n =circuit.getCell(3, 2).getNode();
-       Wire w = n.getWire();
-  displayWireNodes(w);
+//        WireNode n =circuit.getCell(3, 2).getNode();
+//        Wire w = n.getWire();
+//   displayWireNodes(w);
 
-       if(w.extendEdge(n, 6,-6 , circuit)) System.out.print("extended wire 1\n"); 
+//        if(w.extendEdge(n, 6,-6 , circuit)) System.out.print("extended wire 1\n"); 
 
-       displayWireNodes(w);
+//        displayWireNodes(w);
 
-       AndGate andGate = new AndGate();
-       if(circuit.addComponent(-6,-6,andGate))  System.out.print("ok\n"); 
+//        AndGate andGate = new AndGate();
+//        if(circuit.addComponent(-6,-6,andGate))  System.out.print("ok\n"); 
 
-        System.err.println("and x,y(" + andGate.getInA().getAbsoluteX() + "," + andGate.getInA().getAbsoluteY() + ")");
+//         System.err.println("and x,y(" + andGate.getInA().getAbsoluteX() + "," + andGate.getInA().getAbsoluteY() + ")");
 
     
 
 
-          if(circuit.getCell(-6, -6).getComponent()!=null) System.out.print("has component\n");    
-         WireNode n1 =circuit.getCell(6, -6).getNode(); 
-         System.err.println(n1);
-             displayWireNodes(w);
-          if(w.deleteNode(n1,circuit)) System.out.print("ok\n"); 
-    displayWireNodes(w);
+//           if(circuit.getCell(-6, -6).getComponent()!=null) System.out.print("has component\n");    
+//          WireNode n1 =circuit.getCell(6, -6).getNode(); 
+//          System.err.println(n1);
+//              displayWireNodes(w);
+//           if(w.deleteNode(n1,circuit)) System.out.print("ok\n"); 
+//     displayWireNodes(w);
 
-      n1 = circuit.getCell(6, 2).getNode();
-      w.extendEdge(n1, 6, -1, circuit);
-      w.extendEdge(n1, 6, 3, circuit);
-      w.extendEdge(n1, 7, -1, circuit);
+//       n1 = circuit.getCell(6, 2).getNode();
+//       w.extendEdge(n1, 6, -1, circuit);
+//       w.extendEdge(n1, 6, 3, circuit);
+//       w.extendEdge(n1, 7, -1, circuit);
 
-      displayWireNodes(w);
+//       displayWireNodes(w);
 
-      n1 = circuit.getCell(7, -1).getNode(); 
-      System.err.println(w.deleteNode(n1, circuit));
+//       n1 = circuit.getCell(7, -1).getNode(); 
+//       System.err.println(w.deleteNode(n1, circuit));
         // ---------------------------
         // 3. Create wires from switches
         // ---------------------------
@@ -136,9 +140,35 @@ public class WireTest {
      {
         Circuit circut = new Circuit(100, 100);
 
-        Component comp = new AndGate();
+        AndGate comp = new AndGate();
 
         circut.addComponent(8, 8, comp);
+
+        
+        Wire w1 = new Wire(comp.getOutC().getAbsoluteX(), comp.getOutC().getAbsoluteY(), comp.getOutC());
+        System.err.println(w1);
+
+        System.err.println(circut.addWire(w1));
+
+        displayWireDetails(w1);
+
+        System.err.println(w1.extendEdge(w1.getNodes().get(0), 14, 8, circut));
+
+        AbstractSink led = new Led();
+        circut.addComponent(2,8,led);
+
+        AbstractSource sw = new Switch();
+        circut.addComponent(2,3, sw);
+
+        
+        Pin srp =sw.getOut();
+        Wire w = new Wire(srp.getAbsoluteX(), srp.getAbsoluteY(), srp);
+        circut.addWire(w);
+
+        
+        w.extendEdge(w.getNodes().get(0), 7,2, circut);
+
+        displayWireDetails(w);
 
         return circut;
 
@@ -159,4 +189,51 @@ if(wire.getNodes().isEmpty()) System.out.println("Empty\n");
             index++;
         }
     }
+
+    public static void displayWireDetails(Wire wire) {
+    if (wire == null) {
+        System.out.println("Wire is null");
+        return;
+    }
+
+    // ---------------------------
+    // 1. Display Nodes
+    // ---------------------------
+    System.out.println("Wire nodes:");
+    if (wire.getNodes().isEmpty()) {
+        System.out.println("  (none)\n");
+    } else {
+        int index = 0;
+        for (WireNode node : wire.getNodes()) {
+            System.out.printf("  Node %d -> x: %d, y: %d%n",
+                    index, node.getX(), node.getY());
+            index++;
+        }
+        System.out.println();
+    }
+
+
+    // ---------------------------
+    // 2. Display Edges
+    // ---------------------------
+    System.out.println("Wire edges:");
+    if (wire.getEdges().isEmpty()) {
+        System.out.println("  (none)\n");
+    } else {
+        int eIndex = 0;
+        for (WireEdge edge : wire.getEdges()) {
+            WireNode a = edge.getA();
+            WireNode b = edge.getB();
+
+            System.out.printf("  Edge %d -> (%d, %d) -> (%d, %d)%n",
+                    eIndex,
+                    a.getX(), a.getY(),
+                    b.getX(), b.getY()
+            );
+            eIndex++;
+        }
+        System.out.println();
+    }
+}
+
 }
