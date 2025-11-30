@@ -3,6 +3,7 @@ D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\grap
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\graphic\Board.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\GUIOverlay.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\handler\SelectHandler.java
+D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\handler\WireGhost.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\Main.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\mathsutil\MathUtils.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\model\AbstractSink.java
@@ -43,6 +44,8 @@ D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\Wire
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\wmodel\InputPin.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\wmodel\OutputPin.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\wmodel\Pos.java
+D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\wmodel\SelectableView.java
+D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\wmodel\SelectionManager.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\wmodel\ViewBuilder.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\wmodel\ViewChip.java
 D:\WORK\SCD\PROJECT\CIRKIT\RAPH\CIRKITRY\src\main\java\com\example\cirkitry\wmodel\ViewLED.java

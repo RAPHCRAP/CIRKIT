@@ -126,23 +126,27 @@ public boolean hasNode() {
 public boolean canPlaceWire(Wire wire) {
 
     // ===== COMPONENT BLOCK =====
-if (component != null && pin == null)
-    return false;
+    if (component != null && pin == null)
+        return false;
 
 
     // ===== PIN LOGIC =====
-    if (pin != null) {
+    if (pin != null) 
+    {
 
 // CASE 1: This pin is the wire's source pin (OUTPUT)
-if (pin == wire.getSource()) {
+        if (pin == wire.getSource()) 
+        {
     // Only allow if no nodes exist yet (wire not placed)
-    if (wire.getNodes().isEmpty() || wire.getNodes().get(0).getX() != this.x || wire.getNodes().get(0).getY() != this.y) {
-        return true;
-    } else {
+            if (wire.getNodes().isEmpty() || wire.getNodes().get(0).getX() != this.x || wire.getNodes().get(0).getY() != this.y) 
+            {
+                return true;
+            } else 
+            {
         // Wire already has its first node here → cannot place again
-        return false;
-    }
-}
+                return false;
+            }
+        }
 
 
         // CASE 2: Output pin but not the wire's source → cannot place

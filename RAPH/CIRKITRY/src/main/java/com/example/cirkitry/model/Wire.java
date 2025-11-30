@@ -3,6 +3,8 @@ package com.example.cirkitry.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.cirkitry.wmodel.SelectableView;
+
 public class Wire {
 
     private final Pin source;
@@ -13,17 +15,24 @@ public class Wire {
 
     private final List<Cell> occupiedCells = new ArrayList<>();
 
-    public Wire(int x, int y, Pin source) {
-        if (!source.isOutput())
+    private SelectableView viewGroup;
+
+    public Wire(int x, int y, Pin source) 
+    {
+         if (!source.isOutput())
             throw new IllegalArgumentException("Wire source must be OUTPUT");
 
+        
         WireNode root = new WireNode(x, y, this);
         nodes.add(root);
 
         this.source = source;
     }
 
-
+    public void setView(SelectableView sv)
+    {
+        this.viewGroup = sv;
+    }
         
     // -------------------------- // Wiring logic // --------------------------
     public void addSink(Pin sink) 
@@ -186,8 +195,12 @@ private boolean canPlaceInLine(int x1, int y1, int x2, int y2, Circuit circuit, 
 public boolean extendEdge(WireNode n, int x2, int y2, Circuit circuit) {
     if (!nodes.contains(n)) return false;
 
+
+
     int x1 = n.getX();
     int y1 = n.getY();
+
+    if(x1==x2&&y1==y2) return false;
 
     List<Cell> proposedCells = new ArrayList<>(occupiedCells);
     if (x1 == x2 || y1 == y2) {
@@ -410,4 +423,16 @@ private void updateOccupiedCells(List<Cell> newCells, Circuit circuit) {
 
     }
 
+    public void rebuild()
+    {
+        if(viewGroup!=null)
+        {
+            viewGroup.rebuild();
+        }
+    }
+
+    public SelectableView getView()
+    {
+        return viewGroup;
+    }
 }

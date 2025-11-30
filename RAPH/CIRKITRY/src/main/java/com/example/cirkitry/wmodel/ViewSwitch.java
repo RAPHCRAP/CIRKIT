@@ -2,7 +2,6 @@ package com.example.cirkitry.wmodel;
 
 import com.example.cirkitry.mathsutil.MathUtils;
 import com.example.cirkitry.model.AbstractSource;
-import com.example.cirkitry.model.Component;
 import com.example.cirkitry.model.Pin;
 import com.example.cirkitry.scale.Scale;
 
@@ -14,7 +13,7 @@ import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.transform.Rotate;
-public class ViewSwitch extends Group 
+public class ViewSwitch extends Group implements SelectableView
 {
      private final String id;  // stable ID
     private AbstractSource model;  // optional for committed mode
@@ -30,17 +29,17 @@ public class ViewSwitch extends Group
 
      
 
-        init(comp);
+        init();
     }
 
-    private void init(Component comp)
+    private void init()
     {
         scale = Scale.WCellScale;
-        int x = comp.getX();
-        int y= comp.getY();
+        int x = model.getX();
+        int y= model.getY();
 
-        int h=comp.getHeight();
-        int w = comp.getWidth();
+        int h=model.getHeight();
+        int w = model.getWidth();
 
         Group Switch = createBase();
         status = createButton();
@@ -54,7 +53,7 @@ public class ViewSwitch extends Group
         this.getChildren().add(Switch);
 
         
-       for(Pin p:comp.getOutputPins())
+       for(Pin p:model.getOutputPins())
         {
             Group g = new OutputPin(scale);
             Pos.setRecPosition(p.getAbsoluteX(),p.getAbsoluteY(),1,1,g);
@@ -128,7 +127,31 @@ private void setStatusColor(Color color)
 
 
 
+  @Override
+    public Object getModel() {
+        return model;
+    }
 
+    @Override
+    public void onSelect() {
+        setOpacity(1.0);
+        // setColor(Color.CYAN);
+    }
 
+    @Override
+    public void onDeselect() {
+        // setOpacity(0.5);
+        // setColor(Color.GRAY);
+    }
 
+    @Override
+    public void rebuild() {
+        init();
+    }
+    
+
+     @Override
+    public void addGroup(Group g) {
+        this.getChildren().add(g);
+    }
 }

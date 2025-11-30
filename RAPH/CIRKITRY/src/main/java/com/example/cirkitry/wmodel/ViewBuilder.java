@@ -5,9 +5,9 @@ import com.example.cirkitry.model.Circuit;
 import com.example.cirkitry.model.Component;
 import com.example.cirkitry.model.CompositeComponent;
 import com.example.cirkitry.model.Primitive;
+import com.example.cirkitry.model.Wire;
 import com.example.cirkitry.model.primitives.Led;
 import com.example.cirkitry.model.primitives.Switch;
-import com.example.cirkitry.model.Wire;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -23,10 +23,12 @@ import javafx.scene.Node;
 public class ViewBuilder {
 
     private final Group world;
+
     
 
     public ViewBuilder(Group root) {
         this.world = root;
+        
         
     }
 
@@ -43,12 +45,25 @@ public class ViewBuilder {
 
             
             Node model = buildComponentModel(comp);
+            
+            
+            
+
+
+
             model.setUserData(comp); // link visual to logic
             world.getChildren().add(model);
         }
 
         for (Wire wire : circuit.getWires()) {
             Node wireModel = buildWireModel(wire);
+       
+            
+            if(wireModel instanceof SelectableView)
+            {
+                wire.setView((SelectableView)wireModel);
+            }
+
             wireModel.setUserData(wire);
             world.getChildren().add(wireModel);
         }

@@ -28,10 +28,12 @@ com\example\cirkitry\model\primitivegates\NotGate.class
 com\example\cirkitry\wmodel\InputPin.class
 com\example\cirkitry\model\primitivegates\NandGate.class
 com\example\cirkitry\model\primitivegates\XorGate.class
+com\example\cirkitry\wmodel\SelectionManager.class
 com\example\cirkitry\model\primitivegates\AndGate.class
 com\example\cirkitry\SelectionManager.class
 com\example\cirkitry\model\InternalWire.class
 com\example\cirkitry\model\ComponentDefinition.class
+com\example\cirkitry\wmodel\SelectableView.class
 com\example\cirkitry\handler\SelectHandler.class
 com\example\cirkitry\Vector3f.class
 com\example\cirkitry\Main$1.class
@@ -65,4 +67,5 @@ com\example\cirkitry\graphic\Arrow.class
 com\example\freefly\Vector3f.class
 com\example\cirkitry\wmodel\WireModel.class
 com\example\cirkitry\GUIOverlay.class
+com\example\cirkitry\handler\WireGhost.class
 com\example\cirkitry\Main.class

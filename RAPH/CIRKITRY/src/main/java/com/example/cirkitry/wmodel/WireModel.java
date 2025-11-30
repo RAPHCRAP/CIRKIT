@@ -11,7 +11,7 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Rotate;
 
-public class WireModel extends Group 
+public class WireModel extends Group implements SelectableView
 {
 
     private String id;
@@ -107,5 +107,34 @@ else {
     g.getChildren().add(cyl);
     return g;
 }
+
+
+  @Override
+    public Object getModel() {
+        return wire;
+    }
+
+    @Override
+    public void onSelect() {
+        setOpacity(1.0);
+        // setColor(Color.CYAN);
+    }
+
+    @Override
+    public void onDeselect() {
+        // setOpacity(0.5);
+        // setColor(Color.GRAY);
+    }
+
+    @Override
+    public void rebuild() {
+        init();
+    }
+
+     @Override
+    public void addGroup(Group g) {
+        this.getChildren().add(g);
+    }
+
 
 }

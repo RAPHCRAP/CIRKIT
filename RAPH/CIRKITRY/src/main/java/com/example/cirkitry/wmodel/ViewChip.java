@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 
-public class ViewChip extends Group 
+public class ViewChip extends Group implements SelectableView
 {
      private final String id;  // stable ID
     private Component model;  // optional for committed mode
@@ -24,17 +24,17 @@ public class ViewChip extends Group
 
      
 
-        init(comp);
+        init();
     }
 
-    private void init(Component comp)
+    private void init()
     {
         
-        int x = comp.getX();
-        int y = comp.getY();
+        int x = model.getX();
+        int y = model.getY();
 
-        int w = comp.getWidth();
-        int h = comp.getHeight();
+        int w = model.getWidth();
+        int h = model.getHeight();
 
         scale = Scale.WCellScale;
 
@@ -50,7 +50,7 @@ public class ViewChip extends Group
 
         this.getChildren().add(body);
 
-        for(Pin p:comp.getInputPins())
+        for(Pin p:model.getInputPins())
         {
             Group g = new InputPin(scale);
             Pos.setRecPosition(p.getAbsoluteX(),p.getAbsoluteY(),1,1,g);
@@ -59,7 +59,7 @@ public class ViewChip extends Group
         }
 
         
-        for(Pin p:comp.getOutputPins())
+        for(Pin p:model.getOutputPins())
         {
             Group g = new OutputPin(scale);
             Pos.setRecPosition(p.getAbsoluteX(),p.getAbsoluteY(),1,1,g);
@@ -70,7 +70,33 @@ public class ViewChip extends Group
     }
 
 
+    @Override
+    public Object getModel() {
+        return model;
+    }
 
+    @Override
+    public void onSelect() {
+        setOpacity(1.0);
+        // setColor(Color.CYAN);
+    }
+
+    @Override
+    public void onDeselect() {
+        // setOpacity(0.5);
+        // setColor(Color.GRAY);
+    }
+
+    @Override
+    public void rebuild() {
+        init();
+    }
+
+    @Override
+    public void addGroup(Group g) {
+        this.getChildren().add(g);
+    }
+    
 
 
 

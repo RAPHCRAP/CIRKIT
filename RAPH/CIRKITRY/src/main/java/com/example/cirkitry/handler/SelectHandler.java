@@ -3,7 +3,10 @@ package com.example.cirkitry.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.cirkitry.model.Cell;
 import com.example.cirkitry.model.Circuit;
+import com.example.cirkitry.model.Wire;
+import com.example.cirkitry.model.WireNode;
 import com.example.cirkitry.scale.Scale;
 
 import javafx.geometry.Bounds;
@@ -20,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.MeshView;
+  
 
 public class SelectHandler {
     private SubScene scene3D;
@@ -29,8 +33,20 @@ public class SelectHandler {
     private Circuit circuit;
      private Box selectionBox;
     private double cellSize = Scale.WCellScale; 
-    private int selectedCellX;
-    private int selectedCellY;
+
+    private WireNode node=null;
+    private int selectedCellX=0;
+    private int selectedCellY=0;
+
+    private WireGhost tmpWire;
+    private Wire selectedWire;
+
+    private boolean PlaceWire=false;
+
+
+
+
+    
     
     public SelectHandler(SubScene scene3D,Circuit circuit) {
         this.scene3D = scene3D;
@@ -38,19 +54,26 @@ public class SelectHandler {
         this.root = scene3D.getRoot();
         this.circuit = circuit;
 
-
-
+        tmpWire = new WireGhost();
+        
+        
            // Initialize the selection box
         selectionBox = createSelectionBox();
         if (root instanceof Group) 
             {
+
         ((Group) root).getChildren().add(selectionBox);
+        ((Group) root).getChildren().add(tmpWire);                
+
          } else 
             {
     System.err.println("SubScene root is not a Group, cannot add selection box!");
               } 
 
         selectionBox.setVisible(false); // Hide initially
+        tmpWire.setOpacity(0.5);
+        tmpWire.setVisible(false);
+
         
         setupMouseHandlers();
     }
@@ -79,10 +102,206 @@ public class SelectHandler {
 
             
             
+
+            
+            
             handleSelection();
         });
     }
 
+
+     private void updateSelection() {
+        Point3D worldPos = screenToWorld(mouseX, mouseY);
+        
+        
+        if (worldPos != null) {
+
+            Point3D cell = worldToGridCell(worldPos);
+
+            // Update selection box position
+            placeSelectionBox(cell);
+
+            if(PlaceWire)
+            {
+                temporaryWirePlacement((int)cell.getX(),(int)cell.getY());
+            }
+
+            // Optional: call your actual selection logic
+            // selectAtPosition(cell);
+        }
+    }
+    
+    private void handleSelection() {
+        Point3D worldPos = screenToWorld(mouseX, mouseY);
+     
+        
+        if (worldPos != null) {
+            // Perform actual selection
+             Point3D coord = worldToGridCell(worldPos);
+
+
+            //  selectAtPosition(coord);
+             int gridX= (int)coord.getX();
+            int gridY= (int)coord.getY();
+
+            
+             
+             Cell c = circuit.getCell(gridX, gridY);
+
+          
+
+             wireExtensionHandle(c,gridX,gridY);
+
+            
+
+
+            
+
+            
+
+            // Cell c = circuit.getCell(gridX, gridY);
+            
+
+            // if(c.hasNode())
+            // {
+            //     if(c.getNode().getDegree()<4)
+            //     {
+
+            //     }
+            // }
+
+
+
+        }
+    }
+
+    private void wireExtensionHandle(Cell c,int gridX,int gridY)
+    {
+         if(PlaceWire)
+            {
+                if(node.getWire().extendEdge(node, gridX, gridY, circuit))
+                {
+                    
+                    selectedWire.getView().addGroup(tmpWire.deepCopy());
+                    PlaceWire = false;
+                    node = null;
+                    selectedCellX =0;
+                    selectedCellY =0;
+                    tmpWire.setVisible(PlaceWire);
+                    selectedWire=null;
+
+                    return;
+                    
+                }
+                
+            }
+
+            if(!PlaceWire&&c.hasNode())
+            {
+                
+           if(c.getNode().getDegree()<4)
+                {
+                    node = c.getNode();
+                    selectedWire = node.getWire();
+                    tmpWire.setVisible(true);
+                    selectedCellX = gridX;
+                    selectedCellY = gridY; 
+                    PlaceWire = true;
+                }
+
+                             
+
+            }
+    }
+
+    private void temporaryWirePlacement(int nx,int ny)
+    {
+        
+        tmpWire.update(selectedCellX, selectedCellY, nx, ny);
+        tmpWire.setOpacity(50);
+
+        if(node.getWire().canExtend(node, nx, ny, circuit))
+        {
+            tmpWire.setColor(Color.AQUA);
+        }
+        else{
+            tmpWire.setColor(Color.RED);
+        }
+        
+        
+    }
+
+    private Point3D getMouseCell()
+    {
+       return worldToGridCell(screenToWorld(mouseX, mouseY));
+
+    }
+    
+private Point3D worldToGridCell(Point3D worldPos) {
+    if (worldPos == null) return null;
+
+    int cellX = (int) Math.floor(worldPos.getX() / cellSize);
+    int cellY = (int) Math.floor(worldPos.getY() / cellSize);
+
+    return new Point3D(cellX, cellY, 0);
+}
+
+private void placeSelectionBox(Point3D cell) {
+        if (cell == null) return;
+
+        double centerX = cell.getX() * cellSize + cellSize / 2.0;
+        double centerY = cell.getY() * cellSize + cellSize / 2.0;
+
+        selectionBox.setTranslateX(centerX);
+        selectionBox.setTranslateY(centerY);
+        selectionBox.setTranslateZ(0); // On Z=0 plane
+
+        selectionBox.setVisible(true);
+    }
+
+    private void highlightAtPosition(Point3D worldPos) {
+        // Find nodes near this world position
+        // You can raycast or use spatial partitioning
+        for (Node node : getAllSelectableNodes()) {
+            if (isNodeAtPosition(node, worldPos)) {
+                // Highlight logic
+                node.setEffect(new Glow(0.5));
+            }
+        }
+    }
+    
+    private void selectAtPosition(Point3D worldPos) {
+        // // Your selection logic here
+        System.out.printf("Selected at: (%.2f, %.2f, %.2f)\n", 
+            worldPos.getX(), worldPos.getY(), worldPos.getZ());
+    }
+    
+    private List<Node> getAllSelectableNodes() {
+        List<Node> selectable = new ArrayList<>();
+        collectSelectableNodes(root, selectable);
+        return selectable;
+    }
+    
+    private void collectSelectableNodes(Node node, List<Node> selectable) {
+        if (node instanceof MeshView || node instanceof Group) {
+            selectable.add(node);
+        }
+        
+        if (node instanceof Parent) {
+            for (Node child : ((Parent) node).getChildrenUnmodifiable()) {
+                collectSelectableNodes(child, selectable);
+            }
+        }
+    }
+    
+    private boolean isNodeAtPosition(Node node, Point3D worldPos) {
+        // Simple bounding box check - you can make this more sophisticated
+        Bounds bounds = node.getBoundsInParent();
+        return bounds.contains(worldPos.getX(), worldPos.getY(), worldPos.getZ());
+    }
+
+
+    
     public Point3D screenToWorld(double screenX, double screenY) {
     if (camera instanceof PerspectiveCamera) {
         return screenToWorldPerspective(screenX, screenY);
@@ -180,121 +399,6 @@ private Point3D toWorldDirection(Point3D camDir) {
     // subtract to get real-world direction
     return end.subtract(origin).normalize();
 }
-
-
-     private void updateSelection() {
-        Point3D worldPos = screenToWorld(mouseX, mouseY);
-        
-        
-        if (worldPos != null) {
-
-            Point3D cell = worldToGridCell(worldPos);
-
-            // Update selection box position
-            placeSelectionBox(cell);
-
-            // Optional: call your actual selection logic
-            // selectAtPosition(cell);
-        }
-    }
-    
-    private void handleSelection() {
-        Point3D worldPos = screenToWorld(mouseX, mouseY);
-        
-        if (worldPos != null) {
-            // Perform actual selection
-             Point3D coord = worldToGridCell(worldPos);
-
-
-             selectAtPosition(coord);
-
-            //  int gridX= (int)coord.getX();
-            // int gridY= (int)coord.getY();
-
-            // Cell c = circuit.getCell(gridX, gridY);
-            
-
-            // if(c.hasNode())
-            // {
-            //     if(c.getNode().getDegree()<4)
-            //     {
-
-            //     }
-            // }
-
-
-
-        }
-    }
-
-    private Point3D getMouseCell()
-    {
-       return worldToGridCell(screenToWorld(mouseX, mouseY));
-
-    }
-    
-private Point3D worldToGridCell(Point3D worldPos) {
-    if (worldPos == null) return null;
-
-    int cellX = (int) Math.floor(worldPos.getX() / cellSize);
-    int cellY = (int) Math.floor(worldPos.getY() / cellSize);
-
-    return new Point3D(cellX, cellY, 0);
-}
-
-private void placeSelectionBox(Point3D cell) {
-        if (cell == null) return;
-
-        double centerX = cell.getX() * cellSize + cellSize / 2.0;
-        double centerY = cell.getY() * cellSize + cellSize / 2.0;
-
-        selectionBox.setTranslateX(centerX);
-        selectionBox.setTranslateY(centerY);
-        selectionBox.setTranslateZ(0); // On Z=0 plane
-
-        selectionBox.setVisible(true);
-    }
-
-    private void highlightAtPosition(Point3D worldPos) {
-        // Find nodes near this world position
-        // You can raycast or use spatial partitioning
-        for (Node node : getAllSelectableNodes()) {
-            if (isNodeAtPosition(node, worldPos)) {
-                // Highlight logic
-                node.setEffect(new Glow(0.5));
-            }
-        }
-    }
-    
-    private void selectAtPosition(Point3D worldPos) {
-        // // Your selection logic here
-        System.out.printf("Selected at: (%.2f, %.2f, %.2f)\n", 
-            worldPos.getX(), worldPos.getY(), worldPos.getZ());
-    }
-    
-    private List<Node> getAllSelectableNodes() {
-        List<Node> selectable = new ArrayList<>();
-        collectSelectableNodes(root, selectable);
-        return selectable;
-    }
-    
-    private void collectSelectableNodes(Node node, List<Node> selectable) {
-        if (node instanceof MeshView || node instanceof Group) {
-            selectable.add(node);
-        }
-        
-        if (node instanceof Parent) {
-            for (Node child : ((Parent) node).getChildrenUnmodifiable()) {
-                collectSelectableNodes(child, selectable);
-            }
-        }
-    }
-    
-    private boolean isNodeAtPosition(Node node, Point3D worldPos) {
-        // Simple bounding box check - you can make this more sophisticated
-        Bounds bounds = node.getBoundsInParent();
-        return bounds.contains(worldPos.getX(), worldPos.getY(), worldPos.getZ());
-    }
 
     // YAY
 }
