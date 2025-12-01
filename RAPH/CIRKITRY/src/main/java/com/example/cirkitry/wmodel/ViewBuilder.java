@@ -47,7 +47,10 @@ public class ViewBuilder {
             Node model = buildComponentModel(comp);
             
             
-            
+            if(model instanceof  SelectableView)
+            {
+                comp.setView((SelectableView)model);
+            }
 
 
 
@@ -61,6 +64,7 @@ public class ViewBuilder {
             
             if(wireModel instanceof SelectableView)
             {
+                
                 wire.setView((SelectableView)wireModel);
             }
 

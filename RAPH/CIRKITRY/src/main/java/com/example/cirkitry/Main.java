@@ -2,7 +2,6 @@ package com.example.cirkitry;
 
 import com.example.cirkitry.handler.SelectHandler;
 import com.example.cirkitry.model.Circuit;
-import com.example.cirkitry.wmodel.ViewBuilder;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -35,8 +34,7 @@ public class Main extends Application {
 
         Group world = new Group();
         Circuit circuit = WireTest.demoCircuit();
-        ViewBuilder vb = new ViewBuilder(world);
-        vb.build(circuit);
+        
     
 
         MObj.addAxisBoxes(world);
@@ -76,7 +74,7 @@ public class Main extends Application {
         camera.setFarClip(50000);
 
         Group cameraHolder = new Group(camera);
-        cameraHolder.setTranslateZ(-800);
+        cameraHolder.setTranslateZ(-1600);
 
         // ------------------------
         // 4. Create DirectionSphere
@@ -107,9 +105,14 @@ public class Main extends Application {
 
         Scene scene = new Scene(root, 800, 600);
 
+        EventHandles EH = new EventHandles();
+        EH.attachKeyControls(scene);
         // Attach controls
+        SH.attachEventHandle(EH);
+        motion.attachEventHandle(EH);
         motion.attachMouseEvent(scene);
-        motion.attachKeyControls(scene);
+
+        
 
         // ------------------------
         // 6. Animation loop
@@ -123,6 +126,8 @@ public class Main extends Application {
                 gui.getCameraPosLabel().setText(str);
 
                 motion.update();
+                SH.update();
+
             }
         }.start();
 

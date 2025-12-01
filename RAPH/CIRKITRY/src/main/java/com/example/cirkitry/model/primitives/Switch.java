@@ -6,8 +6,8 @@ public class Switch extends AbstractSource {
 
     public Switch() {
         super("SWITCH");
-        this.width =3;
-        this.height =3;
+        this.width =5;
+        this.height =5;
         this.state = false; // default off
     }
 
@@ -20,7 +20,7 @@ public class Switch extends AbstractSource {
     @Override
     protected void layoutPins()
     {
-        out.setRelative(3, 1);
+        out.setRelative(4, 2);
     }
 
     // Toggle the switch

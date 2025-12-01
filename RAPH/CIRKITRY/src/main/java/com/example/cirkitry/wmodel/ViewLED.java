@@ -7,6 +7,7 @@ import com.example.cirkitry.scale.Scale;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
@@ -36,12 +37,14 @@ public class ViewLED extends Group implements SelectableView
 
     private void init()
     {
-        scale = Scale.WCellScale;
-        int x = model.getX();
-        int y= model.getY();
+        this.getChildren().clear();
 
-        int h=model.getHeight();
-        int w = model.getWidth();
+        scale = Scale.WCellScale;
+        int x = model.getX()+1;
+        int y= model.getY()+1;
+
+        int h=model.getHeight()-2;
+        int w = model.getWidth()-2;
 
         Group LED = createBase();
         status = createBulb();
@@ -154,5 +157,15 @@ private void setStatusColor(Color color)
     public void addGroup(Group g) {
         this.getChildren().add(g);
     }
+
+
+    @Override
+    public void removeFromSubSceneRoot() {
+    Parent parent = getParent();
+    if (parent instanceof Group g) {
+        g.getChildren().remove(this);
+    }
+}
+
 
 }

@@ -7,6 +7,7 @@ import com.example.cirkitry.model.WireNode;
 import com.example.cirkitry.scale.Scale;
 
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Rotate;
@@ -29,7 +30,8 @@ public class WireModel extends Group implements SelectableView
 
     private void init()
     {
-
+        this.getChildren().clear();
+        
         scale = Scale.WCellScale;
         for(WireNode node: wire.getNodes())
         {
@@ -135,6 +137,16 @@ else {
     public void addGroup(Group g) {
         this.getChildren().add(g);
     }
+
+
+    @Override
+   public void removeFromSubSceneRoot() {
+    Parent parent = getParent();
+    if (parent instanceof Group g) {
+        g.getChildren().remove(this);
+    }
+}
+
 
 
 }

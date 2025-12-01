@@ -7,4 +7,6 @@ public interface SelectableView {
     void onDeselect();         // remove highlight
     void rebuild();
     void addGroup(Group g);
+    void removeFromSubSceneRoot();
+
 }

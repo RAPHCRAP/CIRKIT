@@ -7,6 +7,7 @@ import com.example.cirkitry.scale.Scale;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
@@ -34,12 +35,14 @@ public class ViewSwitch extends Group implements SelectableView
 
     private void init()
     {
+        this.getChildren().clear();
+        
         scale = Scale.WCellScale;
-        int x = model.getX();
-        int y= model.getY();
+        int x = model.getX()+1;
+        int y= model.getY()+1;
 
-        int h=model.getHeight();
-        int w = model.getWidth();
+        int h=model.getHeight()-2;
+        int w = model.getWidth()-2;
 
         Group Switch = createBase();
         status = createButton();
@@ -154,4 +157,20 @@ private void setStatusColor(Color color)
     public void addGroup(Group g) {
         this.getChildren().add(g);
     }
+
+
+       
+    
+    @Override
+    public void removeFromSubSceneRoot() {
+    Parent parent = getParent();
+    if (parent instanceof Group g) {
+        g.getChildren().remove(this);
+    }
+}
+
+
+
+
+
 }

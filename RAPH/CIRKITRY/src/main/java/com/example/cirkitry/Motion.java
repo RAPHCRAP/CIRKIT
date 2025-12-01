@@ -1,7 +1,5 @@
 package com.example.cirkitry;
 
-import java.util.HashSet;
-
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -20,7 +18,8 @@ public class Motion
     private Group node;
 
 
-    private final HashSet<KeyCode> activeKeys = new HashSet<>();
+    private EventHandles activeKeys;
+        
 
 
 
@@ -86,7 +85,10 @@ scene.setOnMouseDragged(e -> {
     
 public void update() {
 
-    handleKeyTranslate();
+    if(activeKeys!=null)
+    {
+        handleKeyTranslate();
+    }
 
     handleKeyRotate();
 }
@@ -98,15 +100,9 @@ private void move(Point3D dir, double amount) {
     posNode.setTranslateZ(posNode.getTranslateZ() + dir.getZ() * amount);
 }
 
-    public void attachKeyControls(Scene scene) {
-
-    scene.setOnKeyPressed(e -> {
-        activeKeys.add(e.getCode());
-    });
-
-    scene.setOnKeyReleased(e -> {
-        activeKeys.remove(e.getCode());
-    });
+    public void attachEventHandle(EventHandles e)
+    {   
+        this.activeKeys = e; 
 }
 
     private void handleKeyTranslate() {

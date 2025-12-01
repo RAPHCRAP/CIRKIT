@@ -27,12 +27,10 @@ public class Wire {
         nodes.add(root);
 
         this.source = source;
+        source.addConnection(this);
     }
 
-    public void setView(SelectableView sv)
-    {
-        this.viewGroup = sv;
-    }
+    
         
     // -------------------------- // Wiring logic // --------------------------
     public void addSink(Pin sink) 
@@ -423,8 +421,16 @@ private void updateOccupiedCells(List<Cell> newCells, Circuit circuit) {
 
     }
 
+    public void setView(SelectableView sv)
+    {
+        
+        this.viewGroup = sv;
+        
+    }
+
     public void rebuild()
     {
+        System.err.println(this.viewGroup);
         if(viewGroup!=null)
         {
             viewGroup.rebuild();
@@ -434,5 +440,10 @@ private void updateOccupiedCells(List<Cell> newCells, Circuit circuit) {
     public SelectableView getView()
     {
         return viewGroup;
+    }
+
+    public void removeView()
+    {
+        viewGroup.removeFromSubSceneRoot();
     }
 }

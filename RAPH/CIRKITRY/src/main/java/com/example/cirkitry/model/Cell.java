@@ -76,8 +76,15 @@ private WireNode node;   // only one node allowed
     }
 
     public void removeWire(Wire wire) {
+
+         // If the cell contains this wire's node → clear it
+    if (getNode() != null && getNode().getWire() == wire) 
+        {
+            clearNode();
+        }
         wires.remove(wire);
     }
+
 
     public List<Wire> getWires() {
         return wires;
@@ -107,16 +114,41 @@ public boolean hasNode() {
     // Utility / conflict checks
     // ---------------------
 
-    public boolean canPlaceComponent(Component comp) {
+   public boolean canMoveComponent(Component comp) {
 
-    // If a component is already on this cell
-    if (component != null) {
-        // Allowed only if it's the SAME component
-        return component == comp;
+    // -------- 1. Component on this cell --------
+    if (component != null && component != comp) {
+        // Another component occupies this cell → cannot move here
+        return false;
     }
 
-    // Otherwise, check normal rules
-    return pin == null && wires.isEmpty() && node == null;
+    // -------- 2. Pin on this cell --------
+    if (pin != null) {
+        // Allow ONLY if this pin belongs to the moving component
+        if (pin.getParent() != comp) {
+            return false;
+        }
+    }
+
+    // -------- 3. Wires on this cell --------
+    for (Wire w : wires) {
+
+        // Case A: wire belongs to this component as source → allowed
+        if (w.getSource().getParent() == comp) {
+            continue;
+        }
+
+        // Case B: wire belongs to another component → block
+        return false;
+    }
+
+    // -------- 4. Node on this cell --------
+    if (node != null && node.getWire().getSource().getParent() != comp) {
+        return false;
+    }
+
+    // All checks passed
+    return true;
 }
 
     public boolean canPlaceComponent() {
@@ -177,6 +209,15 @@ public boolean canPlaceWire(Wire wire) {
     // Allow crossing wires + allow reusing your own cells
     return true;
 }
+
+public boolean hasComponent()
+{
+    return component != null;
+}
+
+
+
+
 
 
 

@@ -9,8 +9,8 @@ public class Led extends AbstractSink {
 
     public Led() {
         super("LED");
-        this.height=3;
-        this.width=3;
+        this.height=5;
+        this.width=5;
         this.status = false; // default off
     }
 
@@ -23,6 +23,6 @@ public class Led extends AbstractSink {
     @Override
     protected void layoutPins()
     {
-        in.setRelative(-1, 1);
+        in.setRelative(0, 2);
     }
 }

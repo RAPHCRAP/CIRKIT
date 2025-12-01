@@ -91,6 +91,13 @@ public class Pin
         return relY;
     }
 
+    public void clear()
+    {
+        connections.clear();
+        signal=false;
+        nextSignal=false;
+    }
+
     public void setRelative(int x, int y) {
         this.relX = x;
         this.relY = y;

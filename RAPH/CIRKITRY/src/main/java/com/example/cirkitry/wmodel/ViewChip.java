@@ -5,6 +5,7 @@ import com.example.cirkitry.model.Pin;
 import com.example.cirkitry.scale.Scale;
 
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
@@ -29,6 +30,7 @@ public class ViewChip extends Group implements SelectableView
 
     private void init()
     {
+        this.getChildren().clear();
         
         int x = model.getX();
         int y = model.getY();
@@ -96,6 +98,15 @@ public class ViewChip extends Group implements SelectableView
     public void addGroup(Group g) {
         this.getChildren().add(g);
     }
+    
+    @Override
+    public void removeFromSubSceneRoot() {
+    Parent parent = getParent();
+    if (parent instanceof Group g) {
+        g.getChildren().remove(this);
+    }
+}
+
     
 
 

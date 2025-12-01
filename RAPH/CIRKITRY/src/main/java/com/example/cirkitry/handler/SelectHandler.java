@@ -3,11 +3,14 @@ package com.example.cirkitry.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.cirkitry.EventHandles;
 import com.example.cirkitry.model.Cell;
 import com.example.cirkitry.model.Circuit;
+import com.example.cirkitry.model.Component;
 import com.example.cirkitry.model.Wire;
 import com.example.cirkitry.model.WireNode;
 import com.example.cirkitry.scale.Scale;
+import com.example.cirkitry.wmodel.ViewBuilder;
 
 import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
@@ -19,13 +22,15 @@ import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.effect.Glow;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.MeshView;
   
 
-public class SelectHandler {
+public class SelectHandler 
+{
     private SubScene scene3D;
     private Camera camera;
     private Parent root;
@@ -38,24 +43,40 @@ public class SelectHandler {
     private int selectedCellX=0;
     private int selectedCellY=0;
 
+    private int hoveringCellX=0;
+    private int hoveringCellY=0;
+
     private WireGhost tmpWire;
     private Wire selectedWire;
 
+    private ComponentGhost tmpComp;
+    private Component selectedComponent;
+
+    private boolean placeComponent=false;
+
     private boolean PlaceWire=false;
 
-
-
+     private EventHandles activeKeys;
+     private ViewBuilder vb; 
+    
 
     
     
-    public SelectHandler(SubScene scene3D,Circuit circuit) {
+    public SelectHandler(SubScene scene3D,Circuit circuit) 
+    {
         this.scene3D = scene3D;
         this.camera = scene3D.getCamera();
         this.root = scene3D.getRoot();
         this.circuit = circuit;
 
         tmpWire = new WireGhost();
+        tmpComp = new ComponentGhost();
         
+        if(this.root instanceof Group)
+        {
+            vb = new ViewBuilder((Group)this.root);
+            vb.build(circuit);
+        }
         
            // Initialize the selection box
         selectionBox = createSelectionBox();
@@ -63,7 +84,8 @@ public class SelectHandler {
             {
 
         ((Group) root).getChildren().add(selectionBox);
-        ((Group) root).getChildren().add(tmpWire);                
+        ((Group) root).getChildren().add(tmpWire);
+         ((Group) root).getChildren().add(tmpComp);                   
 
          } else 
             {
@@ -73,6 +95,8 @@ public class SelectHandler {
         selectionBox.setVisible(false); // Hide initially
         tmpWire.setOpacity(0.5);
         tmpWire.setVisible(false);
+        tmpComp.setOpacity(0.5);
+        tmpComp.setVisible(false);
 
         
         setupMouseHandlers();
@@ -87,7 +111,11 @@ public class SelectHandler {
         return box;
     }
 
-    
+    public void attachEventHandle(EventHandles e)
+    {
+
+        this.activeKeys =e;
+    }
     private void setupMouseHandlers() {
         scene3D.setOnMouseMoved(event -> {
             mouseX = event.getX();
@@ -118,12 +146,20 @@ public class SelectHandler {
 
             Point3D cell = worldToGridCell(worldPos);
 
+            hoveringCellX = (int)cell.getX();
+            hoveringCellY = (int)cell.getY();
+
             // Update selection box position
             placeSelectionBox(cell);
 
             if(PlaceWire)
             {
                 temporaryWirePlacement((int)cell.getX(),(int)cell.getY());
+            }
+
+            if(placeComponent)
+            {
+                temporaryComponentPlacement((int)cell.getX(), (int)cell.getY());
             }
 
             // Optional: call your actual selection logic
@@ -144,13 +180,16 @@ public class SelectHandler {
              int gridX= (int)coord.getX();
             int gridY= (int)coord.getY();
 
-            
+            selectedCellX = gridX;
+                    selectedCellY = gridY; 
              
              Cell c = circuit.getCell(gridX, gridY);
 
           
 
-             wireExtensionHandle(c,gridX,gridY);
+             //wireExtensionHandle(c,gridX,gridY);
+
+            moveComponent(c,gridX,gridY);
 
             
 
@@ -175,6 +214,81 @@ public class SelectHandler {
         }
     }
 
+    public void update()
+    {
+        if(activeKeys!=null)
+        {
+            KeyPressHandles();
+        }
+         
+       
+    }
+
+    private void KeyPressHandles()
+    {
+         if(activeKeys.contains(KeyCode.ESCAPE))
+        {
+            
+            releaseSelectionHandle();
+
+        }
+        if(activeKeys.contains(KeyCode.BACK_SPACE))
+        {
+            if(PlaceWire)
+            {
+                Cell c = circuit.getCell(selectedCellX, selectedCellY);
+                if(c.hasNode())
+                {
+                    WireNode node = c.getNode();
+                    Wire wire = node.getWire();
+                    wire.deleteNode(node, circuit);
+                    wire.rebuild();
+                    releaseSelectionHandle();
+
+                    
+                }
+
+            }
+        }
+    }
+
+    private void moveComponent(Cell c, int x, int y)
+    {
+
+
+        if(placeComponent)
+        {
+            
+            if(selectedComponent.getX()==hoveringCellX&&selectedComponent.getY()==hoveringCellY)
+            {
+                
+                releaseSelectionHandle();
+                
+            }
+            else if(selectedComponent.canMoveTo(hoveringCellX, hoveringCellY, circuit))
+            {   
+                selectedComponent.moveTo(hoveringCellX, hoveringCellY, circuit);
+                selectedComponent.rebuild();
+                releaseSelectionHandle();
+            }
+            
+            
+
+            return;
+        }
+
+       if(!placeComponent)
+       {
+         if(c.hasComponent())
+        {
+            selectedComponent = c.getComponent();
+            tmpComp.setVisible(true);
+            placeComponent = true;
+
+        }
+       }
+    }
+
     private void wireExtensionHandle(Cell c,int gridX,int gridY)
     {
          if(PlaceWire)
@@ -183,16 +297,17 @@ public class SelectHandler {
                 {
                     
                     selectedWire.getView().addGroup(tmpWire.deepCopy());
-                    PlaceWire = false;
-                    node = null;
-                    selectedCellX =0;
-                    selectedCellY =0;
-                    tmpWire.setVisible(PlaceWire);
-                    selectedWire=null;
-
-                    return;
+                    
+                    releaseSelectionHandle();
+                   
                     
                 }
+                else
+                {
+                    releaseSelectionHandle();
+                }
+
+                 return;
                 
             }
 
@@ -204,8 +319,7 @@ public class SelectHandler {
                     node = c.getNode();
                     selectedWire = node.getWire();
                     tmpWire.setVisible(true);
-                    selectedCellX = gridX;
-                    selectedCellY = gridY; 
+                    
                     PlaceWire = true;
                 }
 
@@ -214,13 +328,30 @@ public class SelectHandler {
             }
     }
 
+    private void releaseSelectionHandle()
+    {
+        PlaceWire = false;
+                    node = null;
+
+                    tmpWire.setVisible(false);
+                    tmpWire.getChildren().clear();
+                    selectedWire=null;
+
+
+                    placeComponent = false;
+                    tmpComp.setVisible(false);
+                    tmpComp.getChildren().clear();
+                    selectedComponent = null;
+    }
+
     private void temporaryWirePlacement(int nx,int ny)
     {
         
         tmpWire.update(selectedCellX, selectedCellY, nx, ny);
-        tmpWire.setOpacity(50);
+        tmpWire.setOpacity(1);
 
-        if(node.getWire().canExtend(node, nx, ny, circuit))
+        
+        if(selectedWire.canExtend(node, nx, ny, circuit))
         {
             tmpWire.setColor(Color.AQUA);
         }
@@ -229,6 +360,21 @@ public class SelectHandler {
         }
         
         
+    }
+
+    private void temporaryComponentPlacement(int x, int y)
+    {
+        tmpComp.update(x, y, selectedComponent.getWidth(), selectedComponent.getHeight());
+        tmpComp.setOpacity(1);
+
+
+        if(selectedComponent.canMoveTo(x, y, circuit))
+        {
+            tmpComp.setColor(Color.AQUA);
+        }
+        else{
+            tmpComp.setColor(Color.RED);
+        }
     }
 
     private Point3D getMouseCell()

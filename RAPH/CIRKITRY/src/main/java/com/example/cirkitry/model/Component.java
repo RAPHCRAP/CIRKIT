@@ -2,6 +2,8 @@ package com.example.cirkitry.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.cirkitry.wmodel.SelectableView;
+
 import javafx.geometry.Point2D;
 
 public abstract class Component {
@@ -22,6 +24,9 @@ public abstract class Component {
 
     // Physical layout (optional for your grid UI)
     protected final List<Cell> occupiedCells = new ArrayList<>();
+
+
+    private SelectableView viewGroup;
 
     public Component(String name) {
         this.name = name;
@@ -68,7 +73,7 @@ public abstract class Component {
     // Layout / Grid
     // ------------------------------
 
-    public void occupyCell(Cell cell) {
+    private void occupyCell(Cell cell) {
         occupiedCells.add(cell);
     }
 
@@ -135,6 +140,32 @@ public abstract class Component {
         return true;
     }
 
+    public boolean canMoveTo(int gridX,int gridY,Circuit circuit)
+    {
+         for (int cx = gridX; cx < gridX + width; cx++) {
+            for (int cy = gridY; cy < gridY + height; cy++) {
+                if (!circuit.getCell(cx, cy).canMoveComponent(this)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean moveTo(int gridX,int gridY,Circuit circuit)
+    {
+        if(!circuit.detachComponent(this)) return false;
+        
+ 
+        this.x = gridX;
+        this.y = gridY;
+        
+        circuit.addComponent(gridX, gridY, this);
+
+
+        return true;
+    }
+
     private void updateOccupiedCells(Circuit circuit) {
         for (int cx = x; cx < x + width; cx++) {
             for (int cy = y; cy < y + height; cy++) {
@@ -145,6 +176,7 @@ public abstract class Component {
 
     private void updatePinCells(Circuit circuit) {
         for (Pin p : inputPins) {
+            
             circuit.getCell(p.getAbsoluteX(), p.getAbsoluteY()).setPin(p);
         }
         for (Pin p : outputPins) {
@@ -160,6 +192,7 @@ public abstract class Component {
     {
         applyPreferredSize();  // compute correct size
 
+        if(!pinConstraint()) return false;
         if (!canPlace(gridX, gridY, circuit)) return false;
 
         this.x = gridX;
@@ -171,6 +204,40 @@ public abstract class Component {
 
         return true;
     }
+
+    private boolean pinConstraint() {
+    int compX = this.x;        // component top-left grid X
+    int compY = this.y;        // component top-left grid Y
+    int w = this.width;
+    int h = this.height;
+
+    // Check all input pins
+    for (Pin p : inputPins) {
+        int px = p.getAbsoluteX();
+        int py = p.getAbsoluteY();
+
+        // Check if pin lies within component bounds
+        if (px < compX || px >= compX + w ||
+            py < compY || py >= compY + h) {
+            return false;  // OUT OF BOUNDS → fail
+        }
+    }
+
+    // Check all output pins
+    for (Pin p : outputPins) {
+        int px = p.getAbsoluteX();
+        int py = p.getAbsoluteY();
+
+        if (px < compX || px >= compX + w ||
+            py < compY || py >= compY + h) {
+            return false;
+        }
+    }
+
+
+    return true; // All checks passed
+}
+
 
     
 
@@ -206,4 +273,30 @@ public abstract class Component {
         return y;
     }
 
+
+    public void setView(SelectableView sv)
+    {
+        
+        this.viewGroup = sv;
+        
+    }
+
+    public void rebuild()
+    {
+        
+        if(viewGroup!=null)
+        {
+            viewGroup.rebuild();
+        }
+    }
+
+    public SelectableView getView()
+    {
+        return viewGroup;
+    }
+
+    public void removeView()
+    {
+        viewGroup.removeFromSubSceneRoot();
+    }
 }

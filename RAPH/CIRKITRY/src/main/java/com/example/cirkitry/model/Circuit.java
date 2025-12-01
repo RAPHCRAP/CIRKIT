@@ -85,20 +85,23 @@ public boolean addComponent(int worldX, int worldY, Component c) {
 }
 
 
-public boolean removeComponent(Component c) {
+
+public boolean detachComponent(Component c) {
     if (c == null) return false;
     if (!components.contains(c)) return false;
 
+   
     // 1. Remove wires connected to this component
     removeWiresConnectedToComponent(c);
 
     // 2. Clear occupied cells
-    for (Cell cell : c.getOccupiedCells()) {
-        Cell gridCell = getCell(cell.getX(), cell.getY());
-        if (gridCell != null && gridCell.getComponent() == c) {
-            gridCell.setComponent(null);
+      for (int cx = c.getX(); cx < c.getX() + c.width; cx++) {
+            for (int cy = c.getY(); cy < c.getY() + c.height; cy++) {
+             
+                this.getCell(cx, cy).setComponent(null);
+                
+            }
         }
-    }
 
     // 3. Clear pin cells
     for (Pin pin : c.getInputPins()) {
@@ -114,6 +117,15 @@ public boolean removeComponent(Component c) {
     return true;
 }
 
+public boolean removeComponent(Component c) 
+{
+    if(!removeComponent(c)) return false;
+
+    c.removeView();
+    
+    return true;
+}
+
 private void clearPinFromGrid(Pin pin) {
     if (pin == null) return;
     int x = pin.getAbsoluteX();
@@ -122,36 +134,40 @@ private void clearPinFromGrid(Pin pin) {
     if (cell != null && cell.getPin() == pin) {
         cell.setPin(null);
     }
+    pin.clear();
 }
 
 private void removeWiresConnectedToComponent(Component c) {
 
+    
+
     List<Wire> toRemove = new ArrayList<>();
 
-    for (Wire w : wires) {
-
-        // CASE 1: wire source pin belongs to component
-        if (w.getSource().getParent() == c) {
-            toRemove.add(w);
-            continue;
-        }
-
-        // CASE 2: any sink belongs to component
-        boolean sinkOwned = false;
-        for (Pin sink : w.getSinks()) {
-            if (sink.getParent() == c) {
-                sinkOwned = true;
-                break;
-            }
-        }
-
-        if (sinkOwned) {
+    for(Pin p:c.outputPins)
+    {
+        
+        for(Wire w:p.getConnections())
+        {
+         
             toRemove.add(w);
         }
     }
+    // Disconnect component from sink wires (but keep the wires)
+for (Pin input : c.getInputPins())
+{
+
+    for (Wire w : new ArrayList<>(input.getConnections()))
+    {
+        
+        w.getSinks().remove(input);  // remove this sink pin
+                    // optional
+    }
+}
+
 
     // REMOVE WIRES + cleanup grid
     for (Wire w : toRemove) {
+        
         removeWire(w);
     }
 }
@@ -182,25 +198,39 @@ public boolean addWire(Wire w)
 public void removeWire(Wire w) {
     if (!wires.contains(w)) return;
 
-    // 1. Clear wire nodes from grid
-    for (WireNode node : new ArrayList<>(w.getNodes())) {
-        Cell c = getCell(node.getX(), node.getY());
-        if (c != null && c.getNode() == node) {
-            c.clearNode();
+    // 1. Clear each edge region from the grid
+    for (WireEdge edge : w.getEdges()) {
+        int x1 = edge.getA().getX();
+        int y1 = edge.getA().getY();
+        int x2 = edge.getB().getX();
+        int y2 = edge.getB().getY();
+
+        // Horizontal line
+        if (y1 == y2) {
+            int min = Math.min(x1, x2);
+            int max = Math.max(x1, x2);
+            for (int x = min; x <= max; x++) {
+                Cell cell = getCell(x, y1);
+                if (cell != null) cell.removeWire(w);
+            }
+        }
+
+        // Vertical line
+        else if (x1 == x2) {
+            int min = Math.min(y1, y2);
+            int max = Math.max(y1, y2);
+            for (int y = min; y <= max; y++) {
+                Cell cell = getCell(x1, y);
+                if (cell != null) cell.removeWire(w);
+            }
         }
     }
 
-    // 2. Clear wire from occupied cells
-    for (Cell cell : w.getOccupiedCells()) {
-        Cell gridCell = getCell(cell.getX(), cell.getY());
-        if (gridCell != null) {
-            gridCell.removeWire(w);
-        }
-    }
-
-    // 3. Remove wire from circuit list
+    // 2. Remove wire entirely from circuit list
     wires.remove(w);
+    w.removeView();
 }
+
 
 
 

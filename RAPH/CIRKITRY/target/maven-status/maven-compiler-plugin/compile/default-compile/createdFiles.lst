@@ -1,4 +1,3 @@
-com\example\cirkitry\motionApp$1.class
 com\example\cirkitry\model\WireEdge.class
 com\example\gui\Main$1.class
 com\example\cirkitry\MotionF.class
@@ -22,7 +21,6 @@ com\example\gridy\Main.class
 com\example\cirkitry\model\Primitive.class
 com\example\cirkitry\wmodel\ViewLED.class
 com\example\rotatingcuboid\Main.class
-com\example\cirkitry\motionApp.class
 com\example\cirkitry\model\ComponentDefinition$PinRef.class
 com\example\cirkitry\model\primitivegates\NotGate.class
 com\example\cirkitry\wmodel\InputPin.class
@@ -36,10 +34,10 @@ com\example\cirkitry\model\ComponentDefinition.class
 com\example\cirkitry\wmodel\SelectableView.class
 com\example\cirkitry\handler\SelectHandler.class
 com\example\cirkitry\Vector3f.class
+com\example\cirkitry\handler\ComponentGhost.class
 com\example\cirkitry\Main$1.class
 com\example\cirkitry\MObj.class
 com\example\cirkitry\WireTest.class
-com\example\cirkitry\WObj.class
 com\example\cirkitry\wmodel\ViewBuilder.class
 com\example\cirkitry\model\Wire.class
 com\example\cirkitry\model\primitivegates\XnorGate.class
@@ -66,6 +64,7 @@ com\example\cirkitry\model\primitivegates\NorGate.class
 com\example\cirkitry\graphic\Arrow.class
 com\example\freefly\Vector3f.class
 com\example\cirkitry\wmodel\WireModel.class
+com\example\cirkitry\EventHandles.class
 com\example\cirkitry\GUIOverlay.class
 com\example\cirkitry\handler\WireGhost.class
 com\example\cirkitry\Main.class
