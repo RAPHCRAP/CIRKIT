@@ -3,6 +3,7 @@ package com.example.cirkitry.handler;
 public enum EditorMode 
 {
     NONE,
-    WIRE_EDGE_SELECTED,
-    COMPONENT_SELECTED
+    WIRE_NODE_SELECTED,
+    COMPONENT_SELECTED,
+    WIRE_ADD
 }

@@ -23,16 +23,19 @@ import javafx.scene.Node;
 public class ViewBuilder {
 
     private final Group world;
+    private final Circuit circuit;
 
     
 
-    public ViewBuilder(Group root) {
+    public ViewBuilder(Group root,Circuit c) {
+        
         this.world = root;
+        this.circuit=c;
         
         
     }
 
-    public Group build(Circuit circuit) 
+    public Group build() 
     {
 
         world.getChildren().removeAll();
@@ -41,10 +44,36 @@ public class ViewBuilder {
 
         for (Component comp : circuit.getComponents()) 
         {
-            
+            addComponentView(comp);
+        }
 
+        for (Wire wire : circuit.getWires()) {
+            addWireView(wire);
+        }
+
+        return world;
+    }
+
+
+    public void addWireView(Wire wire)
+    {
+         Node wireModel = buildWireModel(wire);
+       
             
-            Node model = buildComponentModel(comp);
+            if(wireModel instanceof SelectableView)
+            {
+                
+                wire.setView((SelectableView)wireModel);
+            }
+
+            wireModel.setUserData(wire);
+            world.getChildren().add(wireModel);
+    }
+
+    
+    public void addComponentView(Component comp)
+    {
+         Node model = buildComponentModel(comp);
             
             
             if(model instanceof  SelectableView)
@@ -56,23 +85,6 @@ public class ViewBuilder {
 
             model.setUserData(comp); // link visual to logic
             world.getChildren().add(model);
-        }
-
-        for (Wire wire : circuit.getWires()) {
-            Node wireModel = buildWireModel(wire);
-       
-            
-            if(wireModel instanceof SelectableView)
-            {
-                
-                wire.setView((SelectableView)wireModel);
-            }
-
-            wireModel.setUserData(wire);
-            world.getChildren().add(wireModel);
-        }
-
-        return world;
     }
 
     private Node buildComponentModel(Component comp) 

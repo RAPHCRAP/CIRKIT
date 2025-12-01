@@ -52,9 +52,7 @@ public class SelectHandler
     private ComponentGhost tmpComp;
     private Component selectedComponent;
 
-    private boolean placeComponent=false;
-
-    private boolean PlaceWire=false;
+    private EditorMode mode=EditorMode.NONE;
 
     
 
@@ -76,8 +74,8 @@ public class SelectHandler
         
         if(this.root instanceof Group)
         {
-            vb = new ViewBuilder((Group)this.root);
-            vb.build(circuit);
+            vb = new ViewBuilder((Group)this.root,circuit);
+            vb.build();
         }
         
            // Initialize the selection box
@@ -154,14 +152,27 @@ public class SelectHandler
             // Update selection box position
             placeSelectionBox(cell);
 
-            if(PlaceWire)
-            {
-                temporaryWirePlacement((int)cell.getX(),(int)cell.getY());
-            }
 
-            if(placeComponent)
+            
+            switch(mode)
             {
-                temporaryComponentPlacement((int)cell.getX(), (int)cell.getY());
+                case WIRE_NODE_SELECTED:
+
+                    temporaryWirePlacement(hoveringCellX, hoveringCellY);
+
+                break;
+
+                case COMPONENT_SELECTED:
+                    
+                    temporaryComponentPlacement(hoveringCellX, hoveringCellY);
+
+                break;
+
+                case WIRE_ADD:
+
+                    temporaryWireAdd(hoveringCellX, hoveringCellY);
+
+                break;
             }
 
             // Optional: call your actual selection logic
@@ -174,6 +185,10 @@ public class SelectHandler
      
         
         if (worldPos != null) {
+
+
+
+            
             // Perform actual selection
              Point3D coord = worldToGridCell(worldPos);
 
@@ -187,11 +202,28 @@ public class SelectHandler
              
              Cell c = circuit.getCell(gridX, gridY);
 
+            
+             if(mode==EditorMode.NONE)
+             {  
+                updateMode();
+
+             }
+             else if (mode==EditorMode.COMPONENT_SELECTED) {
+                  moveComponent();
+             }
+             else if (mode==EditorMode.WIRE_NODE_SELECTED) {
+                 wireExtensionHandle();
+             }
+             else if(mode==EditorMode.WIRE_ADD)
+             {
+                addWireAcrossNode();
+             }
+            
           
 
-             //wireExtensionHandle(c,gridX,gridY);
+             
 
-            moveComponent(c,gridX,gridY);
+           
 
             
 
@@ -202,6 +234,43 @@ public class SelectHandler
 
 
         }
+    }
+
+    private void updateMode()
+    {   
+        Cell c = circuit.getCell(selectedCellX, selectedCellY);
+
+        if(c.hasPin()&&c.getPin().isOutput()&&c.getPin().getConnections().isEmpty())
+        {
+            // HAS OUTPIN WITH NO CONNECTIONS
+            tmpWire.setVisible(true);
+            selectedWire = new Wire(selectedCellX,selectedCellY,c.getPin());
+            mode = EditorMode.WIRE_ADD;
+            return;
+        }
+
+         if(c.hasNode()&&c.getNode().getDegree()<4)
+        {
+                 node = c.getNode();
+                    selectedWire = node.getWire();
+                    tmpWire.setVisible(true);
+                    
+                    mode = EditorMode.WIRE_NODE_SELECTED;
+                    return;
+                             
+
+        }
+
+        if(c.hasComponent())
+        {
+            selectedComponent = c.getComponent();
+            tmpComp.setVisible(true);
+            mode = EditorMode.COMPONENT_SELECTED;
+            return;
+
+        }
+        
+       
     }
 
     public void update()
@@ -224,38 +293,31 @@ public class SelectHandler
         }
         if(activeKeys.contains(KeyCode.BACK_SPACE))
         {
-            if(PlaceWire)
+            switch(mode)
             {
-                Cell c = circuit.getCell(selectedCellX, selectedCellY);
-                if(c.hasNode())
-                {
-                    WireNode node = c.getNode();
-                    Wire wire = node.getWire();
-                    wire.deleteNode(node, circuit);
-                    wire.rebuild();
-                    releaseSelectionHandle();
+                case WIRE_NODE_SELECTED :
+                    node.getWire().deleteNode(node, circuit);
+                    node.getWire().rebuild();
+                break;
 
-                    
-                }
 
+                case COMPONENT_SELECTED :
+                    circuit.removeComponent(selectedComponent);
+                break;
+
+                
             }
 
-            if(placeComponent)
-            {
-                circuit.removeComponent(selectedComponent);
-                releaseSelectionHandle();
-            }
+            releaseSelectionHandle();
+           
         }
     }
 
-    private void moveComponent(Cell c, int x, int y)
+    private void moveComponent()
     {
 
 
-        if(placeComponent)
-        {
-            
-            if(selectedComponent.getX()==hoveringCellX&&selectedComponent.getY()==hoveringCellY)
+         if(selectedComponent.getX()==hoveringCellX&&selectedComponent.getY()==hoveringCellY)
             {
                 
                 // DO NOTHING
@@ -272,63 +334,41 @@ public class SelectHandler
             releaseSelectionHandle();
             
 
-            return;
-        }
-
-       if(!placeComponent)
-       {
-         if(c.hasComponent())
-        {
-            selectedComponent = c.getComponent();
-            tmpComp.setVisible(true);
-            placeComponent = true;
-
-        }
-       }
+            
     }
 
-    private void wireExtensionHandle(Cell c,int gridX,int gridY)
+    private void wireExtensionHandle()
     {
-         if(PlaceWire)
+         if(node.getWire().extendEdge(node, selectedCellX, selectedCellY, circuit))
             {
-                if(node.getWire().extendEdge(node, gridX, gridY, circuit))
-                {
                     
-                    selectedWire.getView().addGroup(tmpWire.deepCopy());
+                selectedWire.getView().addGroup(tmpWire.deepCopy());
                     
-                    releaseSelectionHandle();
+                    
                    
                     
-                }
-                else
-                {
-                    releaseSelectionHandle();
-                }
-
-                 return;
-                
             }
-
-            if(!PlaceWire&&c.hasNode())
-            {
                 
-           if(c.getNode().getDegree()<4)
-                {
-                    node = c.getNode();
-                    selectedWire = node.getWire();
-                    tmpWire.setVisible(true);
-                    
-                    PlaceWire = true;
-                }
+            releaseSelectionHandle();
 
-                             
+            
+    }
 
-            }
+    private void addWireAcrossNode()
+    {
+
+        if(circuit.addWire(selectedWire))
+        {
+            
+            selectedWire.extendEdge(selectedWire.getNodes().get(0), selectedCellX, selectedCellY, circuit);
+            vb.addWireView(selectedWire);
+        }
+        releaseSelectionHandle();
     }
 
     private void releaseSelectionHandle()
     {
-        PlaceWire = false;
+                    mode = EditorMode.NONE;
                     node = null;
 
                     tmpWire.setVisible(false);
@@ -336,7 +376,7 @@ public class SelectHandler
                     selectedWire=null;
 
 
-                    placeComponent = false;
+                    
                     tmpComp.setVisible(false);
                     tmpComp.getChildren().clear();
                     selectedComponent = null;
@@ -350,6 +390,25 @@ public class SelectHandler
 
         
         if(selectedWire.canExtend(node, nx, ny, circuit))
+        {
+            tmpWire.setColor(Color.AQUA);
+        }
+        else{
+            tmpWire.setColor(Color.RED);
+        }
+        
+        
+    }
+
+    
+    private void temporaryWireAdd(int nx,int ny)
+    {
+        
+        tmpWire.update(selectedCellX, selectedCellY, nx, ny);
+        tmpWire.setOpacity(1);
+
+        
+        if(selectedWire.canPlace(circuit))
         {
             tmpWire.setColor(Color.AQUA);
         }

@@ -27,6 +27,7 @@ com\example\cirkitry\wmodel\InputPin.class
 com\example\cirkitry\model\primitivegates\NandGate.class
 com\example\cirkitry\model\primitivegates\XorGate.class
 com\example\cirkitry\wmodel\SelectionManager.class
+com\example\cirkitry\handler\EditorMode.class
 com\example\cirkitry\model\primitivegates\AndGate.class
 com\example\cirkitry\SelectionManager.class
 com\example\cirkitry\model\InternalWire.class
@@ -40,6 +41,7 @@ com\example\cirkitry\MObj.class
 com\example\cirkitry\WireTest.class
 com\example\cirkitry\wmodel\ViewBuilder.class
 com\example\cirkitry\model\Wire.class
+com\example\cirkitry\handler\SelectHandler$1.class
 com\example\cirkitry\model\primitivegates\XnorGate.class
 com\example\cirkitry\DirectionSphere.class
 com\example\cirkitry\model\primitivegates\OrGate.class
