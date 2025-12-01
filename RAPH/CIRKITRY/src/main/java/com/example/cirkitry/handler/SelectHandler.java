@@ -56,6 +56,8 @@ public class SelectHandler
 
     private boolean PlaceWire=false;
 
+    
+
      private EventHandles activeKeys;
      private ViewBuilder vb; 
     
@@ -198,18 +200,6 @@ public class SelectHandler
 
             
 
-            // Cell c = circuit.getCell(gridX, gridY);
-            
-
-            // if(c.hasNode())
-            // {
-            //     if(c.getNode().getDegree()<4)
-            //     {
-
-            //     }
-            // }
-
-
 
         }
     }
@@ -249,6 +239,12 @@ public class SelectHandler
                 }
 
             }
+
+            if(placeComponent)
+            {
+                circuit.removeComponent(selectedComponent);
+                releaseSelectionHandle();
+            }
         }
     }
 
@@ -262,16 +258,18 @@ public class SelectHandler
             if(selectedComponent.getX()==hoveringCellX&&selectedComponent.getY()==hoveringCellY)
             {
                 
-                releaseSelectionHandle();
+                // DO NOTHING
                 
             }
             else if(selectedComponent.canMoveTo(hoveringCellX, hoveringCellY, circuit))
             {   
                 selectedComponent.moveTo(hoveringCellX, hoveringCellY, circuit);
                 selectedComponent.rebuild();
-                releaseSelectionHandle();
+                
             }
             
+            
+            releaseSelectionHandle();
             
 
             return;

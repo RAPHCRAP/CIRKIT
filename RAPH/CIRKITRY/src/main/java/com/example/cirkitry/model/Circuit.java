@@ -119,7 +119,7 @@ public boolean detachComponent(Component c) {
 
 public boolean removeComponent(Component c) 
 {
-    if(!removeComponent(c)) return false;
+    if(!detachComponent(c)) return false;
 
     c.removeView();
     
