@@ -1,9 +1,23 @@
+##############################
+# Java / Maven build output
+##############################
+
+# Ignore ALL target folders anywhere
 target/
+**/target/
+**/target/**
+
+# But do NOT ignore Maven wrapper jar
 !.mvn/wrapper/maven-wrapper.jar
+
+# Allow target directories inside src (rare but some tools use it)
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### IntelliJ IDEA ###
+##############################
+# IntelliJ IDEA
+##############################
+.idea/
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
@@ -12,7 +26,9 @@ target/
 *.iml
 *.ipr
 
-### Eclipse ###
+##############################
+# Eclipse
+##############################
 .apt_generated
 .classpath
 .factorypath
@@ -21,7 +37,9 @@ target/
 .springBeans
 .sts4-cache
 
-### NetBeans ###
+##############################
+# NetBeans
+##############################
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -31,8 +49,12 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+##############################
+# VS Code
+##############################
 .vscode/
 
-### Mac OS ###
+##############################
+# OS files
+##############################
 .DS_Store
