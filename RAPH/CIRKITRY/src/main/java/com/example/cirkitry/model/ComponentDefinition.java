@@ -16,8 +16,8 @@ public class ComponentDefinition {
     // Internal connections between pins (srcIndex -> dstIndex)
     public List<ConnectionDef> connections = new ArrayList<>();
 
-    public ComponentDefinition(String name, int inputCount, int outputCount) {
-        this.name = name;
+    public ComponentDefinition(String type, int inputCount, int outputCount) {
+        this.name = type;
         this.inputCount = inputCount;
         this.outputCount = outputCount;
     }

@@ -30,7 +30,7 @@ public class ComponentBuilder {
         return pin;
     }
 
-    // -----------------------
+    // -----------------------D
     // Add internal subcomponents
     // -----------------------
     public <T extends Component> T addSubcomponent(T subcomponent) {
@@ -57,7 +57,7 @@ public class ComponentBuilder {
     int inputCount = component.getInputPins().size();
     int outputCount = component.getOutputPins().size();
 
-    ComponentDefinition def = new ComponentDefinition(component.getName(), inputCount, outputCount);
+    ComponentDefinition def = new ComponentDefinition(component.getType(), inputCount, outputCount);
 
     // Subcomponents
     for (Component sub : component.getSubcomponents()) {
