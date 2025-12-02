@@ -212,9 +212,9 @@ for (Pin input : c.getInputPins())
  *
  * Returns the created CompositeComponent on success, or throws an exception on failure.
  */
-public CompositeComponent extractCompositeFromRect(int x1, int y1, int x2, int y2, String compositeName) {
+public ComponentBuilder extractCompositeFromRect(int x1, int y1, int x2, int y2, String compositeTypeName) {
 
-    System.err.println("IN HERE");
+
     int rx1 = Math.min(x1, x2), ry1 = Math.min(y1, y2);
     int rx2 = Math.max(x1, x2), ry2 = Math.max(y1, y2);
 
@@ -227,7 +227,7 @@ public CompositeComponent extractCompositeFromRect(int x1, int y1, int x2, int y
     }
 
     if (inside.isEmpty()) {
-        throw new IllegalArgumentException("No components inside selection");
+        return null;
     }
 
     // ----------------------------------------------------
@@ -264,17 +264,22 @@ public CompositeComponent extractCompositeFromRect(int x1, int y1, int x2, int y
         }
     }
 
+
+    // if(leavingEdges.isEmpty()&&enteringEdges.isEmpty()) 
+    // {
+    //     return null;
+    // }
     // ----------------------------------------------------
     // STEP C: Cycle check using SimpleWire internalEdges
     // ----------------------------------------------------
     if (!isAcyclic(inside, internalEdges)) {
-        throw new IllegalStateException("Selected subcircuit contains cycles; cannot pack into composite");
+        return null;
     }
 
     // ----------------------------------------------------
     // STEP D: Build composite
     // ----------------------------------------------------
-    ComponentBuilder builder = new ComponentBuilder(compositeName);
+    ComponentBuilder builder = new ComponentBuilder(compositeTypeName);
 
     Map<Component, Component> cloneMap = new HashMap<>();
     for (Component orig : inside) {
@@ -357,9 +362,7 @@ public CompositeComponent extractCompositeFromRect(int x1, int y1, int x2, int y
         }
     }
 
-    CompositeComponent composite = builder.build();
-
-return composite;
+    return builder;
     // // 11) Place composite at rx1, ry1 (top-left)
     // // note: placeInCircuit will apply preferred size/layout/pin placement logic
     // if (!composite.placeInCircuit(rx1, ry1, this)) {

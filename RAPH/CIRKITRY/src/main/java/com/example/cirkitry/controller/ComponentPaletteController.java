@@ -1,25 +1,27 @@
 package com.example.cirkitry.controller;
 
-import javafx.scene.layout.VBox;
+import java.util.HashMap;
 import java.util.Map;
-import javafx.scene.control.Button;
-import  java.util.HashMap;
 import java.util.function.Consumer;
-import com.example.cirkitry.model.ComponentFactory;
+
+import  com.example.cirkitry.model.ComponentFactory;
+
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 
 public class ComponentPaletteController {
 
-    private final VBox paletteRoot;      // UI container where buttons go
+    private final VBox paletteRoot;
     private final Map<String, Button> buttonMap = new HashMap<>();
+
+    // <— store handler here!
+    private Consumer<String> componentSelectHandler = null;
 
     public ComponentPaletteController(VBox paletteRoot) {
         this.paletteRoot = paletteRoot;
         refreshPalette();
     }
 
-    /**
-     * Rebuilds all buttons based on ComponentFactory registry.
-     */
     public void refreshPalette() {
         paletteRoot.getChildren().clear();
         buttonMap.clear();
@@ -28,6 +30,11 @@ public class ComponentPaletteController {
             Button b = createButton(typeName);
             buttonMap.put(typeName, b);
             paletteRoot.getChildren().add(b);
+
+            // <— reapply handler if it exists!
+            if (componentSelectHandler != null) {
+                b.setOnAction(a -> componentSelectHandler.accept(typeName));
+            }
         }
     }
 
@@ -38,10 +45,11 @@ public class ComponentPaletteController {
     }
 
     /**
-     * Attach an action to ALL buttons: 
-     * controller.onComponentSelected("AND") etc.
+     * Store the handler and apply immediately.
      */
     public void setOnComponentSelected(Consumer<String> handler) {
+        this.componentSelectHandler = handler; // store it
+
         for (Map.Entry<String, Button> e : buttonMap.entrySet()) {
             String type = e.getKey();
             Button btn = e.getValue();

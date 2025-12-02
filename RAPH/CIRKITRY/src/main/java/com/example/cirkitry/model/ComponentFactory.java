@@ -28,7 +28,8 @@ private static void notifyListeners() {
     // -----------------------------
     public static void registerPrimitive(String typeName, Supplier<Component> factory) {
         registry.put(typeName, factory);
-         notifyListeners();
+        
+        notifyListeners();
     }
 
     // -----------------------------
@@ -44,6 +45,8 @@ private static void notifyListeners() {
     // Create a new component by type name
     // -----------------------------
     public static Component create(String typeName) {
+
+        
         Supplier<Component> factory = registry.get(typeName);
         if (factory == null)
             throw new IllegalArgumentException("Unknown component type: " + typeName);

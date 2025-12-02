@@ -11,8 +11,8 @@ public class ComponentBuilder {
     private final Map<String, Pin> inputPins = new HashMap<>();
     private final Map<String, Pin> outputPins = new HashMap<>();
 
-    public ComponentBuilder(String name) {
-        component = new CompositeComponent(name);
+    public ComponentBuilder(String TypeName) {
+        component = new CompositeComponent(TypeName);
     }
 
     // -----------------------
@@ -52,7 +52,8 @@ public class ComponentBuilder {
         return component;
     }
 
-    public ComponentDefinition buildDefinition() {
+    public ComponentDefinition buildDefinition() 
+    {
     int inputCount = component.getInputPins().size();
     int outputCount = component.getOutputPins().size();
 
@@ -61,7 +62,7 @@ public class ComponentBuilder {
     // Subcomponents
     for (Component sub : component.getSubcomponents()) {
         def.subcomponents.add(
-            new ComponentDefinition.SubcomponentDef(sub.getClass().getSimpleName(), sub.getName())
+            new ComponentDefinition.SubcomponentDef(sub.getType(), sub.getName())
         );
     }
 
