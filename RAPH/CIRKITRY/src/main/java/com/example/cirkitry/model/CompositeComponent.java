@@ -11,8 +11,12 @@ public class CompositeComponent extends Component {
     protected final List<InternalWire> internalWires = new ArrayList<>();
 
     public CompositeComponent(String name) {
-        super(name);
-        this.type = "Abstract{Composite}";
+        super("Composite : "+name);
+        
+        this.type = name;
+
+        this.width=5;
+        this.height = 3;
     }
 
     // -------------------------------

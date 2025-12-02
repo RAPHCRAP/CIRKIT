@@ -2,12 +2,15 @@ package com.example.cirkitry.handler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.example.cirkitry.EventHandles;
+import com.example.cirkitry.controller.CompositeComponentController;
 import com.example.cirkitry.debuging.ComponentPrinter;
 import com.example.cirkitry.model.Cell;
 import com.example.cirkitry.model.Circuit;
 import com.example.cirkitry.model.Component;
+import com.example.cirkitry.model.ComponentBuilder;
 import com.example.cirkitry.model.Wire;
 import com.example.cirkitry.model.WireNode;
 import com.example.cirkitry.model.primitives.Switch;
@@ -23,6 +26,7 @@ import javafx.scene.ParallelCamera;
 import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -434,15 +438,44 @@ public class SelectHandler
         releaseSelectionHandle();
     }
 
-    private void selectHighlight()
-    {
-        Component compos = circuit.extractCompositeFromRect(startHighlightX, startHighlightY, selectedCellX, selectedCellX, "AND - AND");
-        
-        ComponentPrinter.printComponent(compos);
-        
+    private CompositeComponentController compositeController = new CompositeComponentController();
 
+private void selectHighlight() {
+
+String typeName = askUserForComponentName();
+    if (typeName == null || typeName.isBlank()) {
         releaseSelectionHandle();
+        return;
     }
+
+    ComponentBuilder builder = circuit.extractCompositeFromRect(
+        startHighlightX,
+        startHighlightY,
+        selectedCellX,
+        selectedCellY,
+        typeName
+    );
+
+    
+
+    try {
+        compositeController.registerCompositeComponent(typeName, builder);
+    } catch (Exception e) {
+        System.err.println(e.getMessage());
+    }
+
+    releaseSelectionHandle();
+}
+
+private String askUserForComponentName() {
+    TextInputDialog dialog = new TextInputDialog();
+    dialog.setTitle("Composite Component");
+    dialog.setHeaderText("Enter a name for the new component:");
+    Optional<String> result = dialog.showAndWait();
+    return result.orElse(null);
+}
+
+
 
      private void toggleSwitches()
     {
@@ -482,6 +515,9 @@ public void disableRunMode()
 
 public void enableADD(Component comp)
 {
+    System.err.println("ENABLE ADD::"+comp.getType());
+    
+    System.err.printf("%d:%d\n",comp.getWidth(),comp.getHeight());
 
     releaseSelectionHandle();
     selectedComponent=comp;
