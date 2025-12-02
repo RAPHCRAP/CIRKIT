@@ -3,7 +3,7 @@ package com.example.cirkitry.model;
 public abstract class AbstractSource extends Component {
 
     protected final Pin out;    // every source has a single output pin
-    protected boolean state;    // current state of the source
+    protected boolean state=false;    // current state of the source
 
     public AbstractSource(String name) {
         super(name);

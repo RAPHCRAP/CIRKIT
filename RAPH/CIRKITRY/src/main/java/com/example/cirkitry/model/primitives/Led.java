@@ -9,6 +9,7 @@ public class Led extends AbstractSink {
 
     public Led() {
         super("LED");
+        this.type = "LED";
         this.height=5;
         this.width=5;
         this.status = false; // default off

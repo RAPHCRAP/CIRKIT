@@ -92,6 +92,8 @@ public boolean deleteNode(WireNode n, Circuit circuit) {
         if (e.getB() == n) { attached = e; neighbor = e.getA(); break; }
     }
 
+
+
     if (attached == null||neighbor==null) return false; // should not happen
 
     // 2. Remove the edge from wire
@@ -105,9 +107,62 @@ public boolean deleteNode(WireNode n, Circuit circuit) {
     // 4. Remove orphan node n
     nodes.remove(n);
     Cell c = circuit.getCell(n.getX(), n.getY());
+
+    if(c!=null&&c.hasPin())
+    {
+        c.getPin().clear();
+    }
+
     if (c != null && c.getNode() == n) c.clearNode();
 
+
+
     return true;
+}
+
+
+    
+  public List<WireEdge> getEdges()
+    {
+        return edges;
+    }
+
+    public List<WireNode> getNodes()
+    {
+        return nodes;
+    }
+
+    public Pin getSource() 
+    {
+         return source; 
+
+    } 
+    public List<Pin> getSinks() 
+    { 
+        return sinks; 
+
+    }
+    // -------------------------- // Signal propagation // -------------------------- 
+    public void propagate() 
+    { boolean value = source.getSignal(); 
+        for (Pin sink : sinks) 
+            { 
+                sink.setNextSignal(value); 
+            } 
+    } 
+    // -------------------------- // Getters // -------------------------- 
+    // 
+
+    public boolean removeSink(Pin sink) {
+    if (sink == null) return false;
+
+    boolean removed = sinks.remove(sink);
+
+    if (removed) {
+        sink.removeConnection(this);   // <-- so Pin stays consistent
+    }
+
+    return removed;
 }
 
 /** Releases the cells along an edge from start -> end, excluding end */
@@ -152,9 +207,14 @@ public boolean canExtend(WireNode n, int x2, int y2, Circuit circuit)
     } else {
         // L-shape: n -> mid -> end
         int midX = x2, midY = y1;
+
+        if(circuit.getCell(midX, midY).hasWire()) return false;
         if (!canPlaceInLine(x1, y1, midX, midY, circuit,  true)) return false; // skip n
         if (!canPlaceInLine(midX, midY, x2, y2, circuit,  false)) return false; // mid is new, do NOT skip
     }
+
+    
+    if(circuit.getCell(x2, y2).hasWire()) return false;
 
     return true;
 }
@@ -193,7 +253,7 @@ private boolean canPlaceInLine(int x1, int y1, int x2, int y2, Circuit circuit, 
 public boolean extendEdge(WireNode n, int x2, int y2, Circuit circuit) {
     if (!nodes.contains(n)) return false;
 
-
+    
 
     int x1 = n.getX();
     int y1 = n.getY();
@@ -266,28 +326,7 @@ private boolean canPlaceLine(int x1, int y1, int x2, int y2, Circuit circuit, Li
     public List<Cell> getOccupiedCells() { 
         return occupiedCells; 
     } 
-    // -------------------------- // Signal propagation // -------------------------- 
-    public void propagate() 
-    { boolean value = source.getSignal(); 
-        for (Pin sink : sinks) 
-            { 
-                sink.setNextSignal(value); 
-            } 
-    } 
-    // -------------------------- // Getters // -------------------------- 
-    // 
 
-    public boolean removeSink(Pin sink) {
-    if (sink == null) return false;
-
-    boolean removed = sinks.remove(sink);
-
-    if (removed) {
-        sink.removeConnection(this);   // <-- so Pin stays consistent
-    }
-
-    return removed;
-}
 
 
 private boolean canPlaceWire(List<Cell> pathCells, Circuit circuit) {
@@ -400,26 +439,6 @@ private void updateOccupiedCells(List<Cell> newCells, Circuit circuit) {
 
 
 
-  public List<WireEdge> getEdges()
-    {
-        return edges;
-    }
-
-    public List<WireNode> getNodes()
-    {
-        return nodes;
-    }
-
-    public Pin getSource() 
-    {
-         return source; 
-
-    } 
-    public List<Pin> getSinks() 
-    { 
-        return sinks; 
-
-    }
 
     public void setView(SelectableView sv)
     {

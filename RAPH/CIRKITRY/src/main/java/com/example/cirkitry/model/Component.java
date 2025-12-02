@@ -87,6 +87,46 @@ public abstract class Component {
     for (Pin p : outputPins) p.updateSignal();
     }
 
+       
+
+    public abstract void compute();
+
+    // ------------------------------
+    // Name
+    // ------------------------------
+
+    public String getName() {
+        
+        return name;
+    }
+
+    public String getType()
+    {
+        return type;
+    }
+
+    public int getHeight() {
+        applyPreferredSize();
+        return height;
+    }
+
+
+    public int getWidth() {
+        applyPreferredSize();
+        return width;
+    }
+    
+    public int getX()
+    {
+        return x;
+    }
+
+    public int getY()
+    {
+        return y;
+    }
+
+
     // ------------------------------
     // Simulation Hook
     // ------------------------------
@@ -239,40 +279,7 @@ public abstract class Component {
 }
 
 
-    
-
-    public abstract void compute();
-
-    // ------------------------------
-    // Name
-    // ------------------------------
-
-    public String getName() {
-        
-        return name;
-    }
-
-    public int getHeight() {
-        applyPreferredSize();
-        return height;
-    }
-
-
-    public int getWidth() {
-        applyPreferredSize();
-        return width;
-    }
-    
-    public int getX()
-    {
-        return x;
-    }
-
-    public int getY()
-    {
-        return y;
-    }
-
+ 
 
     public void setView(SelectableView sv)
     {

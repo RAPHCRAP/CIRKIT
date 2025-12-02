@@ -11,6 +11,7 @@ public class OrGate extends Primitive {
 
     public OrGate() {
         super("OR");
+        this.type = "OR";
         inA = addInputPin("A");
         inB = addInputPin("B");
         outC = addOutputPin("C");

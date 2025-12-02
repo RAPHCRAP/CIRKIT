@@ -11,6 +11,7 @@ public class XorGate extends Primitive {
 
     public XorGate() {
         super("XOR");
+        this.type = "XOR";
         inA = addInputPin("A");
         inB = addInputPin("B");
         outC = addOutputPin("C");

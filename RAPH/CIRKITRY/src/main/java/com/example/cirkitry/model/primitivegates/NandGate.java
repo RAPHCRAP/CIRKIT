@@ -11,6 +11,7 @@ public class NandGate extends Primitive {
 
     public NandGate() {
         super("NAND");
+        this.type = "NAND";
         inA = addInputPin("A");
         inB = addInputPin("B");
         outC = addOutputPin("C");

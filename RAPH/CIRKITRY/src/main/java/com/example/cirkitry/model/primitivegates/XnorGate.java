@@ -11,6 +11,7 @@ public class XnorGate extends Primitive {
 
     public XnorGate() {
         super("XNOR");
+        this.type = "XNOR";
         inA = addInputPin("A");
         inB = addInputPin("B");
         outC = addOutputPin("C");

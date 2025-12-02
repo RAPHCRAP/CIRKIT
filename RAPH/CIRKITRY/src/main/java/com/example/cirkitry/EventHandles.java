@@ -9,10 +9,12 @@ import javafx.scene.input.KeyEvent;
 public class EventHandles {
 
         private final HashSet<KeyCode> activeKeys = new HashSet<>();
+        private final Scene scene;
 
-
-        public EventHandles()
-        {
+        public EventHandles(Scene scene)
+        {   
+            this.scene = scene;
+            attachKeyControls(scene);
 
         }
 
@@ -28,7 +30,7 @@ public class EventHandles {
             return false;
         }
         
-    public void attachKeyControls(Scene scene) {
+    private void attachKeyControls(Scene scene) {
 
    scene.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             

@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.cirkitry.EventHandles;
+import com.example.cirkitry.debuging.ComponentPrinter;
 import com.example.cirkitry.model.Cell;
 import com.example.cirkitry.model.Circuit;
 import com.example.cirkitry.model.Component;
 import com.example.cirkitry.model.Wire;
 import com.example.cirkitry.model.WireNode;
+import com.example.cirkitry.model.primitives.Switch;
 import com.example.cirkitry.scale.Scale;
 import com.example.cirkitry.wmodel.ViewBuilder;
 
@@ -23,6 +25,7 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
@@ -37,11 +40,15 @@ public class SelectHandler
     private double mouseX, mouseY;
     private Circuit circuit;
      private Box selectionBox;
+     private Highlight cellHighlight;
     private double cellSize = Scale.WCellScale; 
 
     private WireNode node=null;
     private int selectedCellX=0;
     private int selectedCellY=0;
+
+    private int startHighlightX=0;
+    private int startHighlightY=0;
 
     private int hoveringCellX=0;
     private int hoveringCellY=0;
@@ -59,6 +66,8 @@ public class SelectHandler
      private EventHandles activeKeys;
      private ViewBuilder vb; 
     
+     private boolean ctrlDown = false;
+
 
     
     
@@ -80,10 +89,14 @@ public class SelectHandler
         
            // Initialize the selection box
         selectionBox = createSelectionBox();
+
+        cellHighlight = new Highlight();
+        cellHighlight.setVisible(false);
         if (root instanceof Group) 
             {
 
         ((Group) root).getChildren().add(selectionBox);
+        ((Group) root).getChildren().add(cellHighlight);
         ((Group) root).getChildren().add(tmpWire);
          ((Group) root).getChildren().add(tmpComp);                   
 
@@ -123,9 +136,18 @@ public class SelectHandler
             
             updateSelection();
         });
+
+        scene3D.setOnMousePressed(event -> {
+            ctrlDown = event.isControlDown();
+        });
         
         scene3D.setOnMouseClicked(event -> {
-            mouseX = event.getX();
+           
+            MouseButton btn = event.getButton();
+
+    switch (btn) {
+        case PRIMARY -> { 
+             mouseX = event.getX();
             mouseY = event.getY();
 
             
@@ -134,6 +156,18 @@ public class SelectHandler
             
             
             handleSelection();
+            break;
+        }
+        case SECONDARY -> { 
+            releaseSelectionHandle();
+            break;
+        }
+        case MIDDLE -> {
+            releaseSelectionHandle();
+            break;
+        }
+    }
+          
         });
     }
 
@@ -172,6 +206,11 @@ public class SelectHandler
 
                     temporaryWireAdd(hoveringCellX, hoveringCellY);
 
+                break;
+
+                case HIGHLIGHT:
+
+                    temporaryHighLight(hoveringCellX,hoveringCellY);
                 break;
             }
 
@@ -217,6 +256,14 @@ public class SelectHandler
              else if(mode==EditorMode.WIRE_ADD)
              {
                 addWireAcrossNode();
+             }
+             else if(mode==EditorMode.HIGHLIGHT)
+             {
+                selectHighlight();
+             }
+             else if(mode==EditorMode.RUN_MODE)
+             {
+                toggleSwitches();
              }
             
           
@@ -264,10 +311,21 @@ public class SelectHandler
         if(c.hasComponent())
         {
             selectedComponent = c.getComponent();
+            ComponentPrinter.printComponent(selectedComponent);
             tmpComp.setVisible(true);
             mode = EditorMode.COMPONENT_SELECTED;
             return;
 
+        }
+
+        if(c.isClear()&&ctrlDown)
+        {
+            
+            mode = EditorMode.HIGHLIGHT;
+            cellHighlight.setVisible(true);
+            startHighlightX = selectedCellX;
+            startHighlightY = selectedCellY;
+            return;
         }
         
        
@@ -366,6 +424,42 @@ public class SelectHandler
         releaseSelectionHandle();
     }
 
+    private void selectHighlight()
+    {
+        Component compos = circuit.extractCompositeFromRect(startHighlightX, startHighlightY, selectedCellX, selectedCellX, "AND - AND");
+        
+        ComponentPrinter.printComponent(compos);
+        
+
+        releaseSelectionHandle();
+    }
+
+     private void toggleSwitches()
+    {
+        Cell c = circuit.getCell(selectedCellX, selectedCellY);
+
+        if(c.hasComponent()&&c.getComponent() instanceof Switch)
+        {
+            System.err.println("HERE");
+            Switch sw = (Switch)c.getComponent();
+            sw.toggle();
+            
+        }
+    }
+
+public void enableRunMode()
+{
+    releaseSelectionHandle();
+    mode = EditorMode.RUN_MODE;
+}
+
+public void disableRunMode()
+{
+    releaseSelectionHandle();
+    mode = EditorMode.NONE;
+}
+    
+
     private void releaseSelectionHandle()
     {
                     mode = EditorMode.NONE;
@@ -380,6 +474,8 @@ public class SelectHandler
                     tmpComp.setVisible(false);
                     tmpComp.getChildren().clear();
                     selectedComponent = null;
+
+                    cellHighlight.setVisible(false);
     }
 
     private void temporaryWirePlacement(int nx,int ny)
@@ -432,6 +528,14 @@ public class SelectHandler
         else{
             tmpComp.setColor(Color.RED);
         }
+    }
+
+    private void temporaryHighLight(int x, int y)
+    {
+        cellHighlight.update(startHighlightX,startHighlightY, x, y);
+        cellHighlight.setOpacity(1);
+
+
     }
 
     private Point3D getMouseCell()

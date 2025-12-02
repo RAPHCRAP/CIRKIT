@@ -65,6 +65,7 @@ public class Pin
     }
 
     public void removeConnection(Wire w) {
+      
         connections.remove(w);
     }
 

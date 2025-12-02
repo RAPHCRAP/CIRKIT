@@ -10,6 +10,7 @@ public class NotGate extends Primitive {
 
     public NotGate() {
         super("NOT");
+        this.type = "NOT";
         inA = addInputPin("A");
         outC = addOutputPin("C");
     }

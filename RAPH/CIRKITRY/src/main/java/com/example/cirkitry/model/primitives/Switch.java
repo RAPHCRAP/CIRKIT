@@ -6,6 +6,7 @@ public class Switch extends AbstractSource {
 
     public Switch() {
         super("SWITCH");
+        this.type = "SWITCH";
         this.width =5;
         this.height =5;
         this.state = false; // default off

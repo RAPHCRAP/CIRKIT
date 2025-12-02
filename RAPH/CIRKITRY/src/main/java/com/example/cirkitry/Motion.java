@@ -31,7 +31,7 @@ private boolean mouseDragging = false;
 private double mouseSensitivity = 0.2; // you can adjust this
 
 
-    Motion(Group Node)
+    public Motion(Group Node)
     {
 
         node = Node;
@@ -51,7 +51,7 @@ private double mouseSensitivity = 0.2; // you can adjust this
 
     }
 
-    void attachMouseEvent(Scene scene)
+    public void attachMouseEvent(Scene scene)
     {
         scene.setOnMousePressed(e -> {
     if (e.isPrimaryButtonDown()) {
@@ -107,7 +107,7 @@ private void move(Point3D dir, double amount) {
 
     private void handleKeyTranslate() {
 
-        double speed = 1.5;
+        double speed = 10;
         Point3D forward = getForward();
         Point3D right   = getRight();
         Point3D up      = getUp();

@@ -12,6 +12,7 @@ public class NorGate extends Primitive {
 
     public NorGate() {
         super("NOR");
+        this.type = "NOR";
         inA = addInputPin("A");
         inB = addInputPin("B");
         outC = addOutputPin("C");

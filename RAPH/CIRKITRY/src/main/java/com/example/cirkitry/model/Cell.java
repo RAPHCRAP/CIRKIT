@@ -109,6 +109,11 @@ public boolean hasNode() {
     return node != null;
 }
 
+    public boolean isClear()
+    {
+        return !hasNode()&&!hasComponent()&&!hasWire()&&!hasPin();
+    }
+
 
     // ---------------------
     // Utility / conflict checks

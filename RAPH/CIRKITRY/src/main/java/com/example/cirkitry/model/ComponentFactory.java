@@ -1,6 +1,9 @@
 package com.example.cirkitry.model;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class ComponentFactory {
@@ -8,11 +11,24 @@ public class ComponentFactory {
     // Registry of all component types (primitive + custom)
     private static final Map<String, Supplier<Component>> registry = new HashMap<>();
 
+
+    private static final List<Runnable> listeners = new ArrayList<>();
+
+public static void addRegistryListener(Runnable r) {
+    listeners.add(r);
+}
+
+private static void notifyListeners() {
+    for (Runnable r : listeners) r.run();
+}
+
+
     // -----------------------------
     // Register a primitive type
     // -----------------------------
     public static void registerPrimitive(String typeName, Supplier<Component> factory) {
         registry.put(typeName, factory);
+         notifyListeners();
     }
 
     // -----------------------------
@@ -21,7 +37,7 @@ public class ComponentFactory {
     public static void registerCustomType(String typeName, ComponentDefinition def) {
         registry.put(typeName, () -> ComponentBuilder.instantiate(def));
 
-        
+         notifyListeners();
     }
 
     // -----------------------------
@@ -33,6 +49,11 @@ public class ComponentFactory {
             throw new IllegalArgumentException("Unknown component type: " + typeName);
         return factory.get();
     }
+
+    public static Set<String> getRegisteredTypes() {
+    return registry.keySet();
+}
+
 }
 
 // START OF THE APP RESGISTER PRIMITIVES

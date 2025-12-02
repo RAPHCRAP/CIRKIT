@@ -157,13 +157,18 @@ public class WireTest {
         AbstractSink led = new Led();
         circut.addComponent(2,8,led);
 
-        AbstractSource sw = new Switch();
-        circut.addComponent(2,3, sw);
+       AbstractSource sw = new Switch();
+        circut.addComponent(2,3, sw); 
+
+         AbstractSource sw2 = new Switch();
+        circut.addComponent(7,-7, sw2);
 
         
         Pin srp =sw.getOut();
         Wire w = new Wire(srp.getAbsoluteX(), srp.getAbsoluteY(), srp);
         circut.addWire(w);
+
+        
 
         
         w.extendEdge(w.getNodes().get(0), 7,2, circut);
