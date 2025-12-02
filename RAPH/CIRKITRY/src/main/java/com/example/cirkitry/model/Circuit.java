@@ -93,8 +93,14 @@ public boolean addComponent(int worldX, int worldY, Component c) {
 
 
 public boolean detachComponent(Component c) {
+
+ 
+
     if (c == null) return false;
+
+
     if (!components.contains(c)) return false;
+
 
    
     // 1. Remove wires connected to this component

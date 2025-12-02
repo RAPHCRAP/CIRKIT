@@ -5,6 +5,7 @@ import com.example.cirkitry.GUIOverlay;
 import  com.example.cirkitry.Motion;
 import com.example.cirkitry.handler.SelectHandler;
 import com.example.cirkitry.model.Circuit;
+import com.example.cirkitry.model.Component;
 import com.example.cirkitry.model.ComponentFactory;
 
 import javafx.animation.AnimationTimer;
@@ -151,12 +152,20 @@ private void removeRunModeFilter()
 }
 
     private void handleComponentSelection(String typeName) {
-        // This is where you begin placing a new component on the canvas.
-        System.out.println("User selected: " + typeName);
 
-        // Example:
-        // workspaceController.beginPlacement(typeName);
-    }
+    System.out.println("User selected: " + typeName);
+
+    // 1. Create the component instance
+    Component comp = ComponentFactory.create(typeName);
+
+    System.err.println(comp.getType());
+    // 2. Tell selector to start ADD mode
+    selector.enableADD(comp);
+
+    // 3. Optional: show message in GUI footer
+    gui.updateMessage("Placing new " + typeName);
+}
+
 
     public Scene getScene()
     {

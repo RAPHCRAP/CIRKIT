@@ -7,5 +7,6 @@ public enum EditorMode
     COMPONENT_SELECTED,
     WIRE_ADD,
     HIGHLIGHT,
-    RUN_MODE
+    RUN_MODE,
+    ADD_COMPONENT
 }

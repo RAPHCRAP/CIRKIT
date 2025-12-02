@@ -212,6 +212,10 @@ public class SelectHandler
 
                     temporaryHighLight(hoveringCellX,hoveringCellY);
                 break;
+
+                case ADD_COMPONENT:
+                    temporaryComponentPlacement(hoveringCellX, hoveringCellY);
+                break;
             }
 
             // Optional: call your actual selection logic
@@ -264,6 +268,10 @@ public class SelectHandler
              else if(mode==EditorMode.RUN_MODE)
              {
                 toggleSwitches();
+             }
+             else if(mode==EditorMode.ADD_COMPONENT)
+             {
+                addComponent();
              }
             
           
@@ -379,10 +387,12 @@ public class SelectHandler
             {
                 
                 // DO NOTHING
+               
                 
             }
             else if(selectedComponent.canMoveTo(hoveringCellX, hoveringCellY, circuit))
             {   
+             
                 selectedComponent.moveTo(hoveringCellX, hoveringCellY, circuit);
                 selectedComponent.rebuild();
                 
@@ -444,9 +454,20 @@ public class SelectHandler
             Switch sw = (Switch)c.getComponent();
             sw.toggle();
             
+
         }
     }
 
+
+    private void addComponent()
+    {
+        if(circuit.addComponent(hoveringCellX, hoveringCellY, selectedComponent))
+        {
+            vb.addComponentView(selectedComponent);
+        }
+
+        releaseSelectionHandle();
+    }
 public void enableRunMode()
 {
     releaseSelectionHandle();
@@ -457,6 +478,17 @@ public void disableRunMode()
 {
     releaseSelectionHandle();
     mode = EditorMode.NONE;
+}
+
+public void enableADD(Component comp)
+{
+
+    releaseSelectionHandle();
+    selectedComponent=comp;
+    tmpComp.setVisible(true);
+    mode = EditorMode.ADD_COMPONENT;
+
+    
 }
     
 

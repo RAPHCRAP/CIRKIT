@@ -8,9 +8,15 @@ public class NotGate extends Primitive {
     private final Pin inA;
     private final Pin outC;
 
+
+    
+
     public NotGate() {
         super("NOT");
         this.type = "NOT";
+
+                this.width =5;
+        this.height =4;
         inA = addInputPin("A");
         outC = addOutputPin("C");
     }
