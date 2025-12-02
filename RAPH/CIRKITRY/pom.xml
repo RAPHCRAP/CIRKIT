@@ -43,6 +43,10 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <excludes>
+                        <!-- Exclude WIP/incomplete components from compilation to allow app to run -->
+                        <exclude>com/example/cirkitry/model/components/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
