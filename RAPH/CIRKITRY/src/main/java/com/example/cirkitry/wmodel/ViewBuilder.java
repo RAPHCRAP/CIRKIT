@@ -11,6 +11,7 @@ import com.example.cirkitry.model.primitives.Switch;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 
 // import javafx.scene.image.Image;
 // import javafx.scene.paint.PhongMaterial;
@@ -23,7 +24,7 @@ import javafx.scene.Node;
 public class ViewBuilder {
 
     private final Group world;
-    private final Circuit circuit;
+    private Circuit circuit;
 
     
 
@@ -35,12 +36,20 @@ public class ViewBuilder {
         
     }
 
+    public void setCircuit(Circuit circuit)
+    {
+ 
+        System.err.println(this.circuit);
+        System.err.println(circuit);
+        this.circuit = circuit;
+    }
+
     public Group build() 
     {
-
+    
         world.getChildren().removeAll();
         
-        world.getChildren().add(new Board(""));
+        world.getChildren().add(new Board("",Math.max(circuit.getHeight(),circuit.getWidth())));
 
         for (Component comp : circuit.getComponents()) 
         {
@@ -64,12 +73,15 @@ public class ViewBuilder {
             {
                 
                 wire.setView((SelectableView)wireModel);
+                ((SelectableView)wireModel).setColor(Color.CORAL);
             }
 
             wireModel.setUserData(wire);
+            
             world.getChildren().add(wireModel);
     }
 
+    
     
     public void addComponentView(Component comp)
     {

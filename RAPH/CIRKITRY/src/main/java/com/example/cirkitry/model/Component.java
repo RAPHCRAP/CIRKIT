@@ -81,11 +81,14 @@ public abstract class Component {
         return occupiedCells;
     }
 
-    public void commitPins()
-    {
-        for (Component sub : subcomponents) sub.commitPins();
+public void commitPins() {
+    // First commit subcomponents recursively
+    for (Component sub : subcomponents) sub.commitPins();
+
+    // Now commit *all* pins owned by this component:
+    for (Pin p : inputPins)  p.updateSignal();
     for (Pin p : outputPins) p.updateSignal();
-    }
+}
 
        
 
@@ -297,8 +300,18 @@ public abstract class Component {
         }
     }
 
+    protected void stateUpdate()
+    {
+        
+        if(viewGroup!=null)
+        {
+            viewGroup.update();
+        }
+    }
+
     public SelectableView getView()
     {
+      
         return viewGroup;
     }
 

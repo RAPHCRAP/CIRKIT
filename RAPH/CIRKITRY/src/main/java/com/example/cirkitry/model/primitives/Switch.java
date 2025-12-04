@@ -15,6 +15,7 @@ public class Switch extends AbstractSource {
     @Override
     protected void evaluate() {
         // Nothing automatic; state is controlled externally via setState()
+      
         out.setNextSignal(state);
     }
 
@@ -27,10 +28,8 @@ public class Switch extends AbstractSource {
     // Toggle the switch
     public void toggle() {
         state = !state;
+        stateUpdate();
     }
 
-    // External control to turn the switch on/off
-    public void setState(boolean newState) {
-        this.state = newState;
-    }
+    
 }

@@ -2,6 +2,7 @@ package com.example.cirkitry.handler;
 
 
 
+import com.example.cirkitry.graphic.applyAction;
 import com.example.cirkitry.mathsutil.MathUtils;
 import com.example.cirkitry.scale.Scale;
 import com.example.cirkitry.wmodel.Pos;
@@ -12,7 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.Shape3D;
+import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 
 public class WireGhost extends Group 
@@ -47,12 +48,14 @@ public class WireGhost extends Group
             double h = MathUtils.percentageValue(70 ,scale);
             double d = scale;
 
-            Box n =new Box(w,h,d);
+            // Box n =new Box(w,h,d);
+            Sphere n = new Sphere(scale*0.2);
 
             Pos.setRecPosition(x1, y1, 1, 1, n);
             this.getChildren().add(n);
 
-            Box e = new Box(w,h,d);
+            // Box e = new Box(w,h,d);
+            Sphere e = new Sphere(scale*0.2);
 
             Pos.setRecPosition(x2, y2, 1, 1, e);
              this.getChildren().add(e);
@@ -70,7 +73,8 @@ public class WireGhost extends Group
         int midX = x2;
         int midY = y1;
 
-          Box m = new Box(w,h,d);
+        //   Box m = new Box(w,h,d);
+        Sphere m = new Sphere(scale*0.2);
 
             Pos.setRecPosition(midX, midY, 1, 1, m);
              this.getChildren().add(m);
@@ -96,7 +100,7 @@ public class WireGhost extends Group
         int cells = Math.abs(dx) + Math.abs(dy) + 1;
 
         double radius = scale * 0.2;
-        double height = cells * scale;
+        double height = cells * scale - scale;
 
         Cylinder cyl = new Cylinder(radius, height);
 
@@ -122,31 +126,19 @@ public class WireGhost extends Group
 
 
     public void setColor(Color color) {
-    applyToAllShapes(this, shape -> {
+    applyAction.applyToAllShapes(this, shape -> {
         PhongMaterial mat = new PhongMaterial(color);
         shape.setMaterial(mat);
     });
 }
 
 public void setOpacityto(double opacity) {
-    applyToAllShapes(this, shape -> {
+    applyAction.applyToAllShapes(this, shape -> {
         shape.setOpacity(opacity);
     });
 }
 
-/** Helper: walk through all children & apply property to 3D shapes */
-private void applyToAllShapes(Group group, java.util.function.Consumer<Shape3D> action) 
-{
-    
-    for (Node node : group.getChildren()) {
-        if (node instanceof Shape3D s) {
-            action.accept(s);
-        } 
-        else if (node instanceof Group g) {
-            applyToAllShapes(g, action); // recursive for nested groups
-        }
-    }
-}
+
 
 public WireGhost deepCopy() {
     WireGhost copy = new WireGhost();
@@ -166,6 +158,7 @@ public WireGhost deepCopy() {
 private java.util.List<Node> cloneNodes(java.util.List<Node> nodes) {
     java.util.List<Node> clones = new java.util.ArrayList<>();
     for (Node node : nodes) {
+
         if (node instanceof Box b) {
             Box nb = new Box(b.getWidth(), b.getHeight(), b.getDepth());
             nb.setTranslateX(b.getTranslateX());
@@ -175,7 +168,8 @@ private java.util.List<Node> cloneNodes(java.util.List<Node> nodes) {
             nb.setMaterial(b.getMaterial());
             nb.setOpacity(b.getOpacity());
             clones.add(nb);
-        } 
+        }
+
         else if (node instanceof Cylinder c) {
             Cylinder nc = new Cylinder(c.getRadius(), c.getHeight());
             nc.setTranslateX(c.getTranslateX());
@@ -185,7 +179,19 @@ private java.util.List<Node> cloneNodes(java.util.List<Node> nodes) {
             nc.setMaterial(c.getMaterial());
             nc.setOpacity(c.getOpacity());
             clones.add(nc);
-        } 
+        }
+
+        else if (node instanceof Sphere s) {
+            Sphere ns = new Sphere(s.getRadius());
+            ns.setTranslateX(s.getTranslateX());
+            ns.setTranslateY(s.getTranslateY());
+            ns.setTranslateZ(s.getTranslateZ());
+            ns.getTransforms().addAll(s.getTransforms());
+            ns.setMaterial(s.getMaterial());
+            ns.setOpacity(s.getOpacity());
+            clones.add(ns);
+        }
+
         else if (node instanceof Group g) {
             Group ng = new Group();
             ng.getChildren().addAll(cloneNodes(g.getChildren())); // recursive
@@ -198,5 +204,6 @@ private java.util.List<Node> cloneNodes(java.util.List<Node> nodes) {
     }
     return clones;
 }
+
 
 }

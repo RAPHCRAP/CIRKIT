@@ -1,29 +1,42 @@
 package com.example.cirkitry.controller;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import com.example.cirkitry.EventHandles;
-import com.example.cirkitry.GUIOverlay;
-import  com.example.cirkitry.Motion;
+import com.example.cirkitry.Motion;
+import  com.example.cirkitry.business.CircuitFileService;
+import com.example.cirkitry.handler.GUIOverlay;
 import com.example.cirkitry.handler.SelectHandler;
+import com.example.cirkitry.mathsutil.TruthTable;
 import com.example.cirkitry.model.Circuit;
 import com.example.cirkitry.model.Component;
 import com.example.cirkitry.model.ComponentFactory;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 
 
 
 public class AppController {
 
-    private final Circuit circuit;
+    private Circuit circuit;
     
     private final SubScene subScene;
     private final Group world=new Group();
@@ -39,6 +52,9 @@ public class AppController {
     private final EventHandles eventHandle;
 
     private final Scene scene;
+
+    private final CircuitFileService fileService = new CircuitFileService();
+
     
 
     private enum Mode { EDIT, RUN }
@@ -124,7 +140,42 @@ public class AppController {
 
         gui.setOnModeChanged(this::handleModeChange);
 
+
+        // NEW HOOKS for menu commands
+    gui.setOnNewRequested(this::handleNewRequest);
+    gui.setOnOpenRequested(this::handleOpenRequest);
+    gui.setOnSaveRequested(this::handleSaveRequest);
+    gui.setOnSaveAsRequested(this::handleSaveAsRequest);
+    gui.setOnExitRequested(() -> Platform.exit());
+
+
+gui.setOnTruthTableRequested(x -> handleTruthTable());
+gui.setOnExportImageRequested(this::handleExportImage);
+
+
+
     }
+
+    private void handleExportImage() {
+    FileChooser chooser = new FileChooser();
+    chooser.setTitle("Save Circuit Diagram");
+    chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Image", "*.png"));
+    File file = chooser.showSaveDialog(scene.getWindow());
+
+    if (file != null) {
+        // Take snapshot of subScene
+        WritableImage image = subScene.snapshot(new SnapshotParameters(), null);
+
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+            gui.showMessage("Screenshot saved: " + file.getName());
+        } catch (IOException e) {
+            e.printStackTrace();
+            gui.showMessage("Failed to save screenshot!");
+        }
+    }
+}
+
 
     private void handleModeChange(GUIOverlay.Mode mode) {
 
@@ -139,6 +190,93 @@ public class AppController {
         removeRunModeFilter();      //  remove subscene filter
     }
 }
+
+private void handleTruthTable() {
+    try {
+        Circuit copy = this.circuit.deepCopy();
+        TruthTable table = copy.generateTruthTable();
+        
+
+
+        gui.updateTruthTable(table);
+
+    } catch (Exception ex) {
+        gui.showMessage("Truth table failed: " + ex.getMessage());
+    }
+}
+
+
+
+public void handleNewRequest() {
+    // Reset file reference
+    fileService.setCurrentFile(null);
+
+    // Create a brand new empty circuit
+    this.circuit = new Circuit(100, 100); // or whatever default size
+
+    // Update selector
+    world.getChildren().clear();
+    selector.setCircuit(circuit);
+
+    // // Rebuild world (clear and repopulate)
+    // world.getChildren().clear();
+    // rebuildWorldFromCircuit();
+
+    gui.showMessage("New Circuit Created");
+}
+
+
+public void handleOpenRequest() {
+    FileChooser chooser = new FileChooser();
+    chooser.getExtensionFilters().add(new ExtensionFilter("Circuit Files", "*.json"));
+
+    File file = chooser.showOpenDialog(scene.getWindow());
+    if (file == null) return;
+
+    try {
+        Circuit loaded = fileService.load(file.toPath());
+        this.circuit = loaded;
+
+        world.getChildren().clear();
+        selector.setCircuit(loaded);
+        
+        
+
+    } catch (Exception ex) {
+        gui.showMessage("Failed to open file: " + ex.getMessage());
+    }
+}
+
+
+public void handleSaveAsRequest() {
+    FileChooser chooser = new FileChooser();
+    chooser.getExtensionFilters().add(new ExtensionFilter("Circuit Files", "*.json"));
+
+    File file = chooser.showSaveDialog(scene.getWindow());
+    if (file == null) return;
+
+    try {
+        fileService.save(file.toPath(), circuit);
+        gui.showMessage("Saved");
+
+    } catch (Exception ex) {
+        gui.showMessage("Save failed: " + ex.getMessage());
+    }
+}
+
+public void handleSaveRequest() {
+    try {
+        fileService.saveExisting(circuit);
+        gui.showMessage("Saved");
+
+    } catch (IllegalStateException noFile) {
+        handleSaveAsRequest(); // fallback
+    } catch (Exception ex) {
+        gui.showMessage("Save failed: " + ex.getMessage());
+    }
+}
+
+
 
 private void applyRunModeFilter()
 {
@@ -163,7 +301,7 @@ private void removeRunModeFilter()
     selector.enableADD(comp);
 
     // 3. Optional: show message in GUI footer
-    gui.updateMessage("Placing new " + typeName);
+    gui.showMessage("Placing new " + typeName);
 }
 
 

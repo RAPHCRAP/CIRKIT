@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import com.example.cirkitry.scale.Scale;
+import com.example.cirkitry.builder.CircuitBuilder;
+import com.example.cirkitry.mathsutil.TruthTable;
 
 public class Circuit {
 
@@ -21,8 +22,8 @@ public class Circuit {
 
 
     public Circuit(int width, int height) {
-        this.width = Scale.WSize;
-        this.height = Scale.WSize;
+        this.width = width;
+        this.height = height;
 
         grid = new Cell[width][height];
 
@@ -32,6 +33,29 @@ public class Circuit {
             }
         }
     }
+
+    public List<AbstractSource> getInputComponents() {
+    List<AbstractSource> inputs = new ArrayList<>();
+    for (Component c : components) {
+        if (c instanceof AbstractSource src) {
+            inputs.add(src);
+        }
+    }
+    return inputs;
+}
+
+public List<AbstractSink> getOutputComponents() {
+    List<AbstractSink> outputs = new ArrayList<>();
+    for (Component c : components) {
+        if (c instanceof AbstractSink sink) {
+            outputs.add(sink);
+        }
+    }
+    return outputs;
+}
+
+
+
 
     // ------------------------------------------------------------
     // Grid Access
@@ -48,6 +72,17 @@ public class Circuit {
         }
 
         return grid[indexX][indexY];
+    }
+
+
+    public int getWidth()
+    {
+        return width;
+    }
+
+    public int getHeight()
+    {
+        return height;
     }
 
 
@@ -602,22 +637,79 @@ This design makes your tick entirely deterministic and simple:
 
 compute() → propagate() → commitPins()
      */
-    public void tick() {
+public void tick() 
+{
+// 1. Let all components read their pin inputs // (Pins are typically updated by wires) 
+// // 2. Let each component compute its output 
+for (Component c : components) { c.compute(); } 
 
-        // 1. Let all components read their pin inputs
-        //    (Pins are typically updated by wires)
+// 3. Let each wire propagate signal from output pins to input pins 
 
-        // 2. Let each component compute its output
-        for (Component c : components) {
-            c.compute();
-        }
+for (Wire w : wires) { w.propagate(); } 
 
-        // 3. Let each wire propagate signal from output pins to input pins
-        for (Wire w : wires) {
-            w.propagate();
-        }
+for (Component sub : components) sub.commitPins(); 
+for (Component c : components) { c.stateUpdate(); } }
 
-
-        for (Component sub : components) sub.commitPins();
+public void settle() {
+    // Run enough ticks to let signals propagate fully
+    for (int i = 0; i < 10; i++) {
+        tick();
     }
+}
+
+
+public Circuit deepCopy()
+{
+    return CircuitBuilder.instantiate(CircuitBuilder.toDefinition(this));
+}
+
+public TruthTable generateTruthTable() {
+
+    List<AbstractSource> inputs = getInputComponents();
+    List<AbstractSink> outputs = getOutputComponents();
+
+    int n = inputs.size();
+    int total = 1 << n; // 2^n combinations
+
+    // Build column names
+    List<String> inNames = inputs.stream()
+            .map(c -> c.getName())     // name of source component
+            .toList();
+
+    List<String> outNames = outputs.stream()
+            .map(c -> c.getName())     // name of sink component
+            .toList();
+
+    TruthTable table = new TruthTable(inNames, outNames);
+
+    // Test every combination
+    for (int mask = 0; mask < total; mask++) {
+
+        boolean[] inVals = new boolean[n];
+
+        // Assign input values
+        for (int i = 0; i < n; i++) {
+            boolean bit = ((mask >> i) & 1) == 1;
+            inVals[i] = bit;
+            inputs.get(i).setState(bit);
+        }
+
+        // Evaluate circuit for this input combination
+        this.settle();     // <---- your circuit simulation tick
+
+        // Read output values
+        boolean[] outVals = new boolean[outputs.size()];
+        for (int j = 0; j < outputs.size(); j++) {
+            outVals[j] = outputs.get(j).getStatus();
+        }
+
+        // Add row
+        table.addRow(inVals, outVals);
+    }
+
+    return table;
+}
+
+
+
 }

@@ -1,6 +1,9 @@
-package com.example.cirkitry;
+package com.example.cirkitry.handler;
 
+import java.util.List;
 import java.util.function.Consumer;
+
+import com.example.cirkitry.mathsutil.TruthTable;
 
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
@@ -10,13 +13,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+
 
 public class GUIOverlay {
 
@@ -43,6 +49,27 @@ public class GUIOverlay {
     public enum Mode { EDIT, RUN }
     private Mode currentMode = Mode.EDIT;
 
+
+    private Runnable onNewRequested;
+private Runnable onOpenRequested;
+private Runnable onSaveRequested;
+private Runnable onSaveAsRequested;
+private Runnable onExitRequested;
+
+public void setOnNewRequested(Runnable r) { onNewRequested = r; }
+public void setOnOpenRequested(Runnable r) { onOpenRequested = r; }
+public void setOnSaveRequested(Runnable r) { onSaveRequested = r; }
+public void setOnSaveAsRequested(Runnable r) { onSaveAsRequested = r; }
+public void setOnExitRequested(Runnable r) { onExitRequested = r; }
+
+
+private Consumer<List<TruthTable.Row>> onTruthTableRequested;
+
+public void setOnTruthTableRequested(Consumer<List<TruthTable.Row>> c) {
+    this.onTruthTableRequested = c;
+}
+
+
     public GUIOverlay() {
         createOverlay();
     }
@@ -57,12 +84,174 @@ public class GUIOverlay {
     public Button getToggleSidebarButton() { return toggleSidebarBtn; }
     public Button getToggleRunButton() { return toggleRunBtn; }
 
+    public Label getPosLabel() {return cameraPosLabel; }
+
     public VBox getComponentSidebar() {
     return componentSidebar;
 }
 
 
+public void updateTruthTable(TruthTable table) {
+
+    runPanel.getChildren().clear();
+
+    // Title
+    Label title = new Label("Truth Table");
+    title.setTextFill(Color.WHITE);
+    title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+    runPanel.getChildren().add(title);
+
+    List<TruthTable.Row> rows = table.getRows();
+    if (rows.isEmpty()) {
+        Label empty = new Label("No outputs");
+        empty.setTextFill(Color.WHITE);
+        runPanel.getChildren().add(empty);
+        return;
+    }
+
+    // Grid
+    GridPane grid = new GridPane();
+    grid.setHgap(10);
+    grid.setVgap(5);
+
+    // HEADER
+    int colIndex = 0;
+    for (String inputName : table.getInputNames()) {
+        grid.add(makeCell(inputName, true), colIndex++, 0);
+    }
+    for (String outputName : table.getOutputNames()) {
+        grid.add(makeCell(outputName, true), colIndex++, 0);
+    }
+
+    // DATA ROWS
+    for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+        TruthTable.Row row = rows.get(rowIndex);
+        colIndex = 0;
+
+        // Inputs
+        for (String inputName : table.getInputNames()) {
+            boolean val = row.inputs.get(inputName);
+            grid.add(makeCell(val ? "1" : "0", false), colIndex++, rowIndex + 1);
+        }
+
+        // Outputs
+        for (String outputName : table.getOutputNames()) {
+            boolean val = row.outputs.get(outputName);
+            grid.add(makeCell(val ? "1" : "0", false), colIndex++, rowIndex + 1);
+        }
+    }
+
+    // Wrap in ScrollPane (to allow horizontal scrolling for many columns)
+    ScrollPane scrollPane = new ScrollPane(grid);
+    scrollPane.setFitToHeight(true);
+    scrollPane.setFitToWidth(false); // allow horizontal scroll
+    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+    // Keep exact style
+    scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+    // Optional: adjust size to your runPanel
+    scrollPane.setPrefWidth(runPanel.getPrefWidth() - 20); // leave small margin
+    scrollPane.setPrefHeight(300);
+
+    runPanel.getChildren().add(scrollPane);
+}
+
+private Label makeCell(String text, boolean header) {
+    Label l = new Label(text);
+    l.setTextFill(Color.WHITE);
+    l.setStyle(header
+        ? "-fx-font-weight: bold; -fx-border-color: #777; -fx-padding: 4;"
+        : "-fx-border-color: #555; -fx-padding: 4;"
+    );
+    return l;
+}
+
+
+
+// Inside GUIOverlay
+private Runnable onExportImageRequested;
+
+public void setOnExportImageRequested(Runnable r) {
+    this.onExportImageRequested = r;
+}
+
+
+
+  // ----------------------------------------------------------
+    // TOP BAR
+    // ----------------------------------------------------------
+   
+
+
+
+    private MenuBar createMenuBar() {
+
+       MenuItem newItem  = styledMenuItem("New");
+    MenuItem openItem = styledMenuItem("Open");
+    MenuItem saveItem = styledMenuItem("Save");
+    MenuItem saveAsItem = styledMenuItem("Save As");
+    MenuItem exitItem = styledMenuItem("Exit");
+
+    newItem.setOnAction(e -> { if (onNewRequested != null) onNewRequested.run(); });
+    openItem.setOnAction(e -> { if (onOpenRequested != null) onOpenRequested.run(); });
+    saveItem.setOnAction(e -> { if (onSaveRequested != null) onSaveRequested.run(); });
+    saveAsItem.setOnAction(e -> { if (onSaveAsRequested != null) onSaveAsRequested.run(); });
+    exitItem.setOnAction(e -> { if (onExitRequested != null) onExitRequested.run(); });
+
+    Menu file = new Menu("File", null,
+        newItem, openItem, saveItem, saveAsItem, exitItem
+    );
+
+   Menu tools = new Menu("Tools");
+MenuItem exportItem = styledMenuItem("Export Image");
+exportItem.setOnAction(e -> {
+    if (onExportImageRequested != null) {
+        onExportImageRequested.run();
+    }
+});
+tools.getItems().add(exportItem);
+
+    MenuBar bar = new MenuBar(file, tools);
+    bar.setStyle("-fx-background-color: #222;");
+    return bar;
+    }
+
+    private MenuItem styledMenuItem(String name) {
+        MenuItem item = new MenuItem(name);
+        item.setStyle("-fx-text-fill: white;");
+        return item;
+    }
+
+
+
 private Consumer<Mode> modeChangeListener;
+
+ private HBox createTopBar() {
+
+        menuBar = createMenuBar();
+
+        modeSwitchBtn = new Button("Mode: EDIT");
+        styleButton(modeSwitchBtn);
+        modeSwitchBtn.setOnAction(e -> toggleMode());
+
+        toggleSidebarBtn = new Button("Components");
+        styleButton(toggleSidebarBtn);
+        toggleSidebarBtn.setOnAction(e -> toggleSidebar());
+
+        toggleRunBtn = new Button("Truth Table");
+        styleButton(toggleRunBtn);
+        toggleRunBtn.setDisable(true);
+        toggleRunBtn.setOnAction(e -> handleTable());
+
+        HBox topBar = new HBox(20, menuBar, modeSwitchBtn, toggleSidebarBtn, toggleRunBtn);
+        topBar.setPadding(new Insets(5));
+        topBar.setStyle("-fx-background-color: #222;");
+        topBar.setMouseTransparent(false);
+
+        return topBar;
+    }
 
 public void setOnModeChanged(Consumer<Mode> listener) {
     this.modeChangeListener = listener;
@@ -75,7 +264,7 @@ public void setOnModeChanged(Consumer<Mode> listener) {
         cameraPosLabel.setText("(" + x + ", " + y + ")");
     }
 
-    public void updateMessage(String msg) {
+    public void showMessage(String msg) {
         messageLabel.setText(msg);
 
         // Clear after short duration (2 seconds)
@@ -109,61 +298,7 @@ public void setOnModeChanged(Consumer<Mode> listener) {
         root.setBottom(createFooterBar());
     }
 
-    // ----------------------------------------------------------
-    // TOP BAR
-    // ----------------------------------------------------------
-    private HBox createTopBar() {
-
-        menuBar = createMenuBar();
-
-        modeSwitchBtn = new Button("Mode: EDIT");
-        styleButton(modeSwitchBtn);
-        modeSwitchBtn.setOnAction(e -> toggleMode());
-
-        toggleSidebarBtn = new Button("Components");
-        styleButton(toggleSidebarBtn);
-        toggleSidebarBtn.setOnAction(e -> toggleSidebar());
-
-        toggleRunBtn = new Button("Truth Table");
-        styleButton(toggleRunBtn);
-        toggleRunBtn.setDisable(true);
-        toggleRunBtn.setOnAction(e -> toggleRunPanel());
-
-        HBox topBar = new HBox(20, menuBar, modeSwitchBtn, toggleSidebarBtn, toggleRunBtn);
-        topBar.setPadding(new Insets(5));
-        topBar.setStyle("-fx-background-color: #222;");
-        topBar.setMouseTransparent(false);
-
-        return topBar;
-    }
-
-    private MenuBar createMenuBar() {
-
-        Menu file = new Menu("File");
-        file.getItems().addAll(
-            styledMenuItem("Open"),
-            styledMenuItem("Save"),
-            styledMenuItem("Save As"),
-            styledMenuItem("Exit")
-        );
-
-        Menu tools = new Menu("Tools");
-        tools.getItems().addAll(
-            styledMenuItem("Export Image")
-        );
-
-        MenuBar bar = new MenuBar(file, tools);
-        bar.setStyle("-fx-background-color: #222;");
-
-        return bar;
-    }
-
-    private MenuItem styledMenuItem(String name) {
-        MenuItem item = new MenuItem(name);
-        item.setStyle("-fx-text-fill: white;");
-        return item;
-    }
-
+  
     // ----------------------------------------------------------
     // FOOTER BAR
     // ----------------------------------------------------------
@@ -260,6 +395,17 @@ public void setOnModeChanged(Consumer<Mode> listener) {
 
         componentSidebar.setMouseTransparent(!sidebarVisible);
     }
+
+    private void handleTable() {
+    toggleRunPanel();
+
+    if (onTruthTableRequested != null) {
+        
+        onTruthTableRequested.accept(null); 
+    }
+}
+
+
 
     // ----------------------------------------------------------
     // RUN PANEL TOGGLE

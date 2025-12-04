@@ -1,5 +1,7 @@
 package com.example.cirkitry;
 
+import com.example.cirkitry.builder.CircuitBuilder;
+import com.example.cirkitry.builder.CircuitDefinition;
 import com.example.cirkitry.controller.AppController;
 import com.example.cirkitry.model.Circuit;
 import com.example.cirkitry.model.PrimitiveBootloader;
@@ -20,8 +22,12 @@ public class Main extends Application {
         
 
         Circuit circuit = WireTest.demoCircuit();
+
+        CircuitDefinition def = CircuitBuilder.toDefinition(circuit);
+
+        Circuit c = CircuitBuilder.instantiate(def);
         
-        AppController control = new AppController(circuit);
+        AppController control = new AppController(c);
 
         
 
