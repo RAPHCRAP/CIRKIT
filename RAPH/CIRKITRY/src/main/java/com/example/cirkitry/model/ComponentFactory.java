@@ -12,6 +12,8 @@ public class ComponentFactory {
     private static final Map<String, Supplier<Component>> registry = new HashMap<>();
 
 
+
+    
     private static final List<Runnable> listeners = new ArrayList<>();
 
 public static void addRegistryListener(Runnable r) {
@@ -21,6 +23,7 @@ public static void addRegistryListener(Runnable r) {
 private static void notifyListeners() {
     for (Runnable r : listeners) r.run();
 }
+
 
 
     // -----------------------------
@@ -35,11 +38,17 @@ private static void notifyListeners() {
     // -----------------------------
     // Register a user-defined composite type
     // -----------------------------
-    public static void registerCustomType(String typeName, ComponentDefinition def) {
-        registry.put(typeName, () -> ComponentBuilder.instantiate(def));
+private static final Map<String, ComponentDefinition> customDefinitions = new HashMap<>();
 
-         notifyListeners();
-    }
+public static void registerCustomType(String typeName, ComponentDefinition def) {
+    customDefinitions.put(typeName, def);
+    registry.put(typeName, () -> ComponentBuilder.instantiate(def));
+    notifyListeners();
+}
+
+public static List<ComponentDefinition> getAllCustomDefs() {
+    return new ArrayList<>(customDefinitions.values());
+}
 
     // -----------------------------
     // Create a new component by type name

@@ -1,5 +1,6 @@
 package com.example.cirkitry.wmodel;
 
+import com.example.cirkitry.graphic.applyAction;
 import com.example.cirkitry.mathsutil.MathUtils;
 import com.example.cirkitry.model.AbstractSource;
 import com.example.cirkitry.model.Pin;
@@ -128,7 +129,13 @@ private void setStatusColor(Color color)
 
 
 
-
+@Override
+ public void setColor(Color color) {
+    applyAction.applyToAllShapes(this, shape -> {
+        PhongMaterial mat = new PhongMaterial(color);
+        shape.setMaterial(mat);
+    });
+}
 
   @Override
     public Object getModel() {
@@ -170,7 +177,18 @@ private void setStatusColor(Color color)
 }
 
 
-
+@Override
+public void update()
+{
+    
+    if(model.getState()==false){
+        setStatusColor(Color.RED);
+    }
+    else{
+        setStatusColor(Color.BLUEVIOLET);
+    }
+    
+}
 
 
 }

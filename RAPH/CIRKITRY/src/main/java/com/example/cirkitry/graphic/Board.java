@@ -11,20 +11,21 @@ import javafx.scene.transform.Rotate;
 
 public class Board extends MeshView
 {
+    public int WSize =100;
 
-
-    public Board(String filepath)
+    public Board(String filepath,int size)
     {
-        super(createMesh("/tile.jpeg")); 
+        super(createMesh("/tile.jpeg",size)); 
+        this.WSize = size;
         initBoard("/tile.jpeg");
     }
 
     
-    private static TriangleMesh createMesh(String filePath)
+    private static TriangleMesh createMesh(String filePath,int WSize)
     {
         Image img = new Image(Board.class.getResource(filePath).toExternalForm());
         double texelScale = (Scale.WCellScale)/100;
-        double repeatScale = Scale.WSize;
+        double repeatScale = WSize;
 
         float imgW = (float) img.getWidth();
         float imgH = (float) img.getHeight();

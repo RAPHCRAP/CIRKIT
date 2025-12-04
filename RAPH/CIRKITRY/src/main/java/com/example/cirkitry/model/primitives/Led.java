@@ -18,6 +18,7 @@ public class Led extends AbstractSink {
     @Override
     protected void evaluate() {
         // Simply propagate input to status
+       
         status = in.getSignal();
     }
 

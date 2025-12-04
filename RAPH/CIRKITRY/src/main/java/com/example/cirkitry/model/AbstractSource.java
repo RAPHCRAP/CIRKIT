@@ -29,6 +29,11 @@ public abstract class AbstractSource extends Component {
         return out;
     }
 
+    // External control to turn the switch on/off
+    public void setState(boolean newState) {
+        this.state = newState;
+    }
+
     @Override
     public void addSubcomponent(Component comp) {
         throw new UnsupportedOperationException("Sources cannot contain subcomponents");

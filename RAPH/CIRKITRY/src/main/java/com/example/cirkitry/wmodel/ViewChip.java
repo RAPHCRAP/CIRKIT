@@ -1,5 +1,6 @@
 package com.example.cirkitry.wmodel;
 
+import com.example.cirkitry.graphic.applyAction;
 import com.example.cirkitry.model.Component;
 import com.example.cirkitry.model.Pin;
 import com.example.cirkitry.scale.Scale;
@@ -72,6 +73,14 @@ public class ViewChip extends Group implements SelectableView
     }
 
 
+@Override
+ public void setColor(Color color) {
+    applyAction.applyToAllShapes(this, shape -> {
+        PhongMaterial mat = new PhongMaterial(color);
+        shape.setMaterial(mat);
+    });
+}
+
     @Override
     public Object getModel() {
         return model;
@@ -105,6 +114,13 @@ public class ViewChip extends Group implements SelectableView
     if (parent instanceof Group g) {
         g.getChildren().remove(this);
     }
+
+    
+}
+@Override
+public void update()
+{
+
 }
 
     

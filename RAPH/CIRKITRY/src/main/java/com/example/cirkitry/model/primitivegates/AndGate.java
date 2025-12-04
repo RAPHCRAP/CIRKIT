@@ -25,9 +25,17 @@ public class AndGate extends Primitive {
 
     @Override
     protected void evaluate() {
+
+
+        
+
         boolean a = inA.getSignal();
         boolean b = inB.getSignal();
+        
         outC.setNextSignal(a && b);
+
+
+        
     }
 
     // Optional pin getters (useful for builders or UI)

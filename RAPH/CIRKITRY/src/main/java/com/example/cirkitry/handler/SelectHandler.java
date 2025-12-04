@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import com.example.cirkitry.EventHandles;
 import com.example.cirkitry.controller.CompositeComponentController;
-import com.example.cirkitry.debuging.ComponentPrinter;
 import com.example.cirkitry.model.Cell;
 import com.example.cirkitry.model.Circuit;
 import com.example.cirkitry.model.Component;
@@ -128,6 +127,39 @@ public class SelectHandler
         return box;
     }
 
+
+    public void setCircuit(Circuit circuit)
+    {
+        if(mode != EditorMode.RUN_MODE)
+        {
+            releaseSelectionHandle();
+        }
+
+        this.circuit = circuit;
+
+        if(this.root instanceof Group)
+        {
+            if(vb!=null)
+            {
+            
+                vb.setCircuit(circuit);
+                vb.build();
+            }
+
+              
+        ((Group) root).getChildren().add(selectionBox);
+        ((Group) root).getChildren().add(cellHighlight);
+        ((Group) root).getChildren().add(tmpWire);
+         ((Group) root).getChildren().add(tmpComp);    
+   
+              
+        }
+        else{
+             System.err.println("SubScene root is not a Group, cannot add selection box!");
+        }
+        
+    }
+
     public void attachEventHandle(EventHandles e)
     {
 
@@ -142,7 +174,7 @@ public class SelectHandler
         });
 
         scene3D.setOnMousePressed(event -> {
-            ctrlDown = event.isControlDown();
+            ctrlDown = event.isShiftDown();
         });
         
         scene3D.setOnMouseClicked(event -> {
@@ -299,6 +331,9 @@ public class SelectHandler
     {   
         Cell c = circuit.getCell(selectedCellX, selectedCellY);
 
+        
+
+
         if(c.hasPin()&&c.getPin().isOutput()&&c.getPin().getConnections().isEmpty())
         {
             // HAS OUTPIN WITH NO CONNECTIONS
@@ -323,7 +358,7 @@ public class SelectHandler
         if(c.hasComponent())
         {
             selectedComponent = c.getComponent();
-            ComponentPrinter.printComponent(selectedComponent);
+            //ComponentPrinter.printComponent(selectedComponent);
             tmpComp.setVisible(true);
             mode = EditorMode.COMPONENT_SELECTED;
             return;
@@ -381,6 +416,18 @@ public class SelectHandler
             releaseSelectionHandle();
            
         }
+        if(activeKeys.contains(KeyCode.F))
+        {
+             switch(mode)
+            {
+                case RUN_MODE :
+                    circuit.tick();
+                break;
+
+
+                
+            }
+        }
     }
 
     private void moveComponent()
@@ -413,7 +460,8 @@ public class SelectHandler
     {
          if(node.getWire().extendEdge(node, selectedCellX, selectedCellY, circuit))
             {
-                    
+                
+                tmpWire.setColor(Color.CORAL);
                 selectedWire.getView().addGroup(tmpWire.deepCopy());
                     
                     
@@ -483,7 +531,7 @@ private String askUserForComponentName() {
 
         if(c.hasComponent()&&c.getComponent() instanceof Switch)
         {
-            System.err.println("HERE");
+            
             Switch sw = (Switch)c.getComponent();
             sw.toggle();
             
@@ -515,9 +563,7 @@ public void disableRunMode()
 
 public void enableADD(Component comp)
 {
-    System.err.println("ENABLE ADD::"+comp.getType());
     
-    System.err.printf("%d:%d\n",comp.getWidth(),comp.getHeight());
 
     releaseSelectionHandle();
     selectedComponent=comp;

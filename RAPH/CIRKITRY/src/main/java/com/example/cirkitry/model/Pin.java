@@ -51,11 +51,14 @@ public class Pin
 
     // Called by a Wire during propagation to write the next value
     public void setNextSignal(boolean s) {
+  
         nextSignal = s;
     }
 
     // Called at the end of the tick to make nextSignal the stable value
     public void updateSignal() {
+
+   
         signal = nextSignal;
     }
 

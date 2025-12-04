@@ -1,6 +1,6 @@
 package com.example.cirkitry.wmodel;
 
-import com.example.cirkitry.mathsutil.MathUtils;
+import com.example.cirkitry.graphic.applyAction;
 import com.example.cirkitry.model.Wire;
 import com.example.cirkitry.model.WireEdge;
 import com.example.cirkitry.model.WireNode;
@@ -8,8 +8,10 @@ import com.example.cirkitry.scale.Scale;
 
 import javafx.scene.Group;
 import javafx.scene.Parent;
-import javafx.scene.shape.Box;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 
 public class WireModel extends Group implements SelectableView
@@ -39,11 +41,13 @@ public class WireModel extends Group implements SelectableView
             int y = node.getY();
 
 
-            double w=MathUtils.percentageValue(70, scale);
-            double h = MathUtils.percentageValue(70 ,scale);
-            double d = scale;
+            // double w=MathUtils.percentageValue(70, scale);
+            // double h = MathUtils.percentageValue(70 ,scale);
+            // double d = scale;
 
-            Box n =new Box(w,h,d);
+            // Box n =new Box(w,h,d);
+
+            Sphere n = new Sphere(scale*0.2);
 
             Pos.setRecPosition(x, y, 1, 1, n);
 
@@ -68,6 +72,17 @@ public class WireModel extends Group implements SelectableView
       
     }
 
+
+@Override
+ public void setColor(Color color) {
+    applyAction.applyToAllShapes(this, shape -> {
+        PhongMaterial mat = new PhongMaterial(color);
+        shape.setMaterial(mat);
+    });
+}
+
+
+
       private Group createEdge(int x1, int y1, int x2, int y2)
 {
     Group g = new Group();
@@ -82,7 +97,7 @@ public class WireModel extends Group implements SelectableView
     int cells = Math.abs(dx) + Math.abs(dy)+ 1;
 
     double radius = scale * 0.2;             // 20% of scale, thickness of wire
-    double height = cells * scale;           // world length
+    double height = cells * scale - scale;           // world length
 
     Cylinder cyl = new Cylinder(radius, height);
 
@@ -147,6 +162,10 @@ else {
     }
 }
 
-
+@Override
+public void update()
+{
+    
+}
 
 }

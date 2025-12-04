@@ -31,7 +31,7 @@ public class Wire {
     }
 
     
-        
+    
     // -------------------------- // Wiring logic // --------------------------
     public void addSink(Pin sink) 
     { 
@@ -144,9 +144,14 @@ public boolean deleteNode(WireNode n, Circuit circuit) {
     }
     // -------------------------- // Signal propagation // -------------------------- 
     public void propagate() 
-    { boolean value = source.getSignal(); 
+    { 
+        
+       
+        
+        boolean value = source.getSignal(); 
         for (Pin sink : sinks) 
             { 
+              
                 sink.setNextSignal(value); 
             } 
     } 
@@ -223,22 +228,40 @@ private boolean canPlaceInLine(int x1, int y1, int x2, int y2, Circuit circuit, 
     if (x1 == x2) { // vertical
         int start = Math.min(y1, y2);
         int end = Math.max(y1, y2);
-        if (skipStart) start += 1;
+        
+        // Adjust bounds if skipping start - FIXED VERSION
+        if (skipStart) {
+            if (y1 < y2) {
+                // Moving downward: skip y1
+                start = y1 + 1;
+            } else {
+                // Moving upward: skip y1 by reducing the end
+                end = y1 - 1;
+            }
+        }
 
         for (int y = start; y <= end; y++) {
             Cell c = circuit.getCell(x1, y);
             if (c == null || !c.canPlaceWire(this)) return false;
-         
         }
     } else if (y1 == y2) { // horizontal
         int start = Math.min(x1, x2);
         int end = Math.max(x1, x2);
-        if (skipStart) start += 1;
+        
+        // Adjust bounds if skipping start - FIXED VERSION
+        if (skipStart) {
+            if (x1 < x2) {
+                // Moving right: skip x1
+                start = x1 + 1;
+            } else {
+                // Moving left: skip x1 by reducing the end
+                end = x1 - 1;
+            }
+        }
 
         for (int x = start; x <= end; x++) {
             Cell c = circuit.getCell(x, y1);
             if (c == null || !c.canPlaceWire(this)) return false;
-       
         }
     } else {
         throw new IllegalArgumentException("Line must be horizontal or vertical");
@@ -260,6 +283,8 @@ public boolean extendEdge(WireNode n, int x2, int y2, Circuit circuit) {
 
     if(x1==x2&&y1==y2) return false;
 
+
+
     List<Cell> proposedCells = new ArrayList<>(occupiedCells);
     if (x1 == x2 || y1 == y2) {
         if (!canPlaceLine(x1, y1, x2, y2, circuit, proposedCells, true)) // skip start
@@ -271,6 +296,7 @@ public boolean extendEdge(WireNode n, int x2, int y2, Circuit circuit) {
         if (!canPlaceLine(midX, midY, x2, y2, circuit, proposedCells, false)) return false; // mid is new, do NOT skip
     }
 
+    if(circuit.getCell(x2, y2).hasWire()) return false;
     
 
     // Safe to create nodes & edges
@@ -293,8 +319,16 @@ private boolean canPlaceLine(int x1, int y1, int x2, int y2, Circuit circuit, Li
     if (x1 == x2) { // vertical
         int start = Math.min(y1, y2);
         int end = Math.max(y1, y2);
-        if (skipStart) start += 1;
-
+        
+        // Adjust bounds if skipping start
+        if (skipStart) {
+            if (y1 < y2) {
+                start = y1 + 1;  // Moving downward, skip the first cell
+            } else {
+                end = y1 - 1;    // Moving upward, skip the first cell
+            }
+        }
+        
         for (int y = start; y <= end; y++) {
             Cell c = circuit.getCell(x1, y);
             if (c == null || !c.canPlaceWire(this)) return false;
@@ -303,8 +337,16 @@ private boolean canPlaceLine(int x1, int y1, int x2, int y2, Circuit circuit, Li
     } else if (y1 == y2) { // horizontal
         int start = Math.min(x1, x2);
         int end = Math.max(x1, x2);
-        if (skipStart) start += 1;
-
+        
+        // Adjust bounds if skipping start
+        if (skipStart) {
+            if (x1 < x2) {
+                start = x1 + 1;  // Moving right, skip the first cell
+            } else {
+                end = x1 - 1;    // Moving left, skip the first cell
+            }
+        }
+        
         for (int x = start; x <= end; x++) {
             Cell c = circuit.getCell(x, y1);
             if (c == null || !c.canPlaceWire(this)) return false;
@@ -313,9 +355,9 @@ private boolean canPlaceLine(int x1, int y1, int x2, int y2, Circuit circuit, Li
     } else {
         throw new IllegalArgumentException("Line must be horizontal or vertical");
     }
+    
     return true;
 }
-
 
 
 
@@ -453,6 +495,15 @@ private void updateOccupiedCells(List<Cell> newCells, Circuit circuit) {
         if(viewGroup!=null)
         {
             viewGroup.rebuild();
+        }
+    }
+
+    protected void stateUpdate()
+    {
+        
+        if(viewGroup!=null)
+        {
+            viewGroup.update();
         }
     }
 
