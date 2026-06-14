@@ -47,3 +47,5 @@ public class Main extends Application {
     }
 }
 
+
+// mvn clean javafx:run

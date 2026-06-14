@@ -112,7 +112,7 @@ public class AppController {
         cameraMotion.attachMouseEvent(this.scene);
         
         
-         new AnimationTimer() {
+        new AnimationTimer() {
             @Override
             public void handle(long now) {
                 

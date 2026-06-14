@@ -67,9 +67,10 @@ public class SelectHandler
     
 
      private EventHandles activeKeys;
+     
      private ViewBuilder vb; 
     
-     private boolean ctrlDown = false;
+     private boolean Down = false;
 
 
     
@@ -173,8 +174,11 @@ public class SelectHandler
             updateSelection();
         });
 
+
+        
         scene3D.setOnMousePressed(event -> {
-            ctrlDown = event.isShiftDown();
+            Down = event.isShiftDown();
+            
         });
         
         scene3D.setOnMouseClicked(event -> {
@@ -365,7 +369,7 @@ public class SelectHandler
 
         }
 
-        if(c.isClear()&&ctrlDown)
+        if(c.isClear()&&Down)
         {
             
             mode = EditorMode.HIGHLIGHT;
@@ -416,8 +420,9 @@ public class SelectHandler
             releaseSelectionHandle();
            
         }
-        if(activeKeys.contains(KeyCode.F))
+        if(activeKeys.justPressed(KeyCode.F))
         {
+            
              switch(mode)
             {
                 case RUN_MODE :

@@ -1,6 +1,7 @@
 package com.example.cirkitry;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -8,40 +9,43 @@ import javafx.scene.input.KeyEvent;
 
 public class EventHandles {
 
-        private final HashSet<KeyCode> activeKeys = new HashSet<>();
-        private final Scene scene;
+    private final Set<KeyCode> activeKeys = new HashSet<>();
+    private final Set<KeyCode> handledKeys = new HashSet<>();
 
-        public EventHandles(Scene scene)
-        {   
-            this.scene = scene;
-            attachKeyControls(scene);
+    private final Scene scene;
 
-        }
+    public EventHandles(Scene scene)
+    {   
+        this.scene = scene;
+        attachKeyControls(scene);
+    }
 
+    // true while key is held
+    public boolean contains(KeyCode key)
+    {
+        return activeKeys.contains(key);
+    }
 
-        public boolean contains(KeyCode e)
+    // true ONLY once per press
+    public boolean justPressed(KeyCode key)
+    {
+        if (activeKeys.contains(key) && !handledKeys.contains(key))
         {
-            if(activeKeys.contains(e)) 
-                {
-                    return true;
-                }
-            
-            
-            return false;
+            handledKeys.add(key);
+            return true;
         }
-        
-    private void attachKeyControls(Scene scene) {
+        return false;
+    }
 
-   scene.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            
-        activeKeys.add(e.getCode());
+    private void attachKeyControls(Scene scene)
+    {
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            activeKeys.add(e.getCode());
+        });
 
-    });
         scene.addEventHandler(KeyEvent.KEY_RELEASED, e -> {
-         
-        activeKeys.remove(e.getCode());
-
-    });
-}
-    
+            activeKeys.remove(e.getCode());
+            handledKeys.remove(e.getCode()); // reset for next press
+        });
+    }
 }
